@@ -11,8 +11,12 @@ import org.openide.util.NbBundle;
  * 
  * @author wernert
  */
-@ServicesTabNodeRegistration(displayName=MongoServiceNode.NAME, iconResource=MongoServiceNode.ICON_BASE, 
-                             name=MongoServiceNode.NAME, position = 5000)
+@ServicesTabNodeRegistration(
+        displayName=MongoServiceNode.NAME, 
+        iconResource=MongoServiceNode.ICON_BASE, 
+        name=MongoServiceNode.NAME, 
+        position = 5000
+)
 public class MongoServiceNode extends AbstractNode {
     
     public static final String ICON_BASE = "de/bfg9000/mongonb/images/MongoDB-logo-16.png";    

@@ -1,12 +1,10 @@
 package de.bfg9000.mongonb.ui.core.services.dialogs;
 
-import com.mongodb.MongoException;
 import de.bfg9000.mongonb.core.Connection;
 import de.bfg9000.mongonb.core.ConnectionManager;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 import javax.swing.SwingWorker;
 import javax.swing.event.DocumentEvent;
@@ -302,12 +300,7 @@ public class ConnectionEditorDialog extends javax.swing.JDialog {
         @Override
         protected String doInBackground() throws Exception {            
             try {
-                connection.connect();
-                return OK;
-            } catch(UnknownHostException unknownHost) {                
-                return bundle.getString("ConnectionEditor.unknownHostError");
-            } catch(MongoException.Network network) {
-                return bundle.getString("ConnectionEditor.networkError");
+                return connection.connect() ? OK : bundle.getString("ConnectionEditor.networkError");                
             } finally {
                 connection.disconnect();
             }            

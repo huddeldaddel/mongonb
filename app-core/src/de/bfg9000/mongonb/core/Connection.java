@@ -1,6 +1,5 @@
 package de.bfg9000.mongonb.core;
 
-import com.mongodb.MongoException;
 import com.mongodb.MongoClient;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
@@ -22,13 +21,18 @@ public class Connection {
     @Getter @Setter private String name = "";
     @Getter private MongoClient mongoClient;
     
-    public void connect() throws UnknownHostException, MongoException.Network {
+    static {
+        Logger.getLogger("com.mongodb").setLevel(Level.SEVERE); // turn off logging - logging would cause NB error msgs
+    }
+    
+    public boolean connect() {
         if(isConnected())
             disconnect();
-                
-        Logger.getLogger("com.mongodb").setLevel(Level.SEVERE); // turn off logging - logging would cause NB error msgs
-        mongoClient = new MongoClient(host, port);                        
-        mongoClient.getDatabaseNames();
+        
+        try {
+            mongoClient = new MongoClient(host, port);                        
+        } catch(UnknownHostException ignore) { }
+        return isConnected();                 
     }
     
     public void disconnect() {
@@ -39,7 +43,15 @@ public class Connection {
     }
     
     public boolean isConnected() {
-        return null != mongoClient;
+        if(null == mongoClient)
+            return false;
+        
+        try {            
+            mongoClient.getDatabaseNames();
+            return true;
+        } catch(Exception ignore) {
+            return false;
+        }        
     }
 
     @Override

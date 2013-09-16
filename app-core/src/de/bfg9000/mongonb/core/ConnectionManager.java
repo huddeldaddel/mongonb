@@ -1,12 +1,12 @@
 package de.bfg9000.mongonb.core;
 
-import de.bfg9000.mongonb.core.impl.ConnectionNameComparator;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.prefs.Preferences;
@@ -106,6 +106,18 @@ public enum ConnectionManager {
             prefs.put(MessageFormat.format(CONNECTIONS_NAME, i), connection.getName());
             i++;
         }
+    }
+    
+    /**
+     * Used to sort {@code Connection}s by their names.
+     */
+    private static final class ConnectionNameComparator implements Comparator<Connection> {
+
+        @Override
+        public int compare(Connection o1, Connection o2) {
+            return o1.getName().compareTo(o2.getName());
+        }
+
     }
     
 }

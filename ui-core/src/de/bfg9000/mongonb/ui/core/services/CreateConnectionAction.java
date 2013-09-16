@@ -8,7 +8,8 @@ import javax.swing.AbstractAction;
 import org.openide.util.NbBundle;
 
 /**
- *
+ * Creates a new {@code Connection}.
+ * 
  * @author wernert
  */
 class CreateConnectionAction extends AbstractAction {

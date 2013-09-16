@@ -13,16 +13,18 @@ import org.openide.util.NbPreferences;
  * 
  * @author wernert
  */
-public class ConnectionManager {
+public enum ConnectionManager {
+    
+    INSTANCE;
     
     private static final String CONNECTIONS_COUNT = "connections.count";
     private static final String CONNECTIONS_HOST = "connections.{0}.host";
     private static final String CONNECTIONS_PORT = "connections.{0}.port";
     private static final String CONNECTIONS_NAME = "connections.{0}.name";
     
-    private final List<Connection> connections = new LinkedList<Connection>();
+    private final List<Connection> connections = new LinkedList<Connection>();        
     
-    public ConnectionManager() {
+    private ConnectionManager() {
         load();
     }
     

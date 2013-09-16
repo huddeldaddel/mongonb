@@ -12,6 +12,8 @@ import javax.swing.event.DocumentListener;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.openide.windows.WindowManager;
 import org.openide.util.NbBundle;
 
@@ -295,10 +297,14 @@ public class ConnectionEditorDialog extends javax.swing.JDialog {
     private final class ConnectionTest extends SwingWorker<String, Void> {
 
         private static final String OK = "OK";
+        
+        private final ProgressHandle p = ProgressHandleFactory.createHandle(bundle.getString("ConnectionEditor.test"));
         private final Connection connection;
+        
         
         @Override
         protected String doInBackground() throws Exception {            
+            p.start();
             try {
                 return connection.connect() ? OK : bundle.getString("ConnectionEditor.networkError");                
             } finally {
@@ -313,6 +319,7 @@ public class ConnectionEditorDialog extends javax.swing.JDialog {
                 lblMessage.setForeground(OK.equals(result) ? Color.GREEN : Color.RED);
                 lblMessage.setText(OK.equals(result) ? bundle.getString("ConnectionEditor.connected") : result);                
             } catch (Exception ignore) { }
+            p.finish();
         }
         
     }

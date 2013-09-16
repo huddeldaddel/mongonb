@@ -20,12 +20,10 @@ public class Connection {
     @Getter @Setter private Integer port = 27017;
     @Getter @Setter private String name = "";
     @Getter private MongoClient mongoClient;
-    
-    static {
-        Logger.getLogger("com.mongodb").setLevel(Level.SEVERE); // turn off logging - logging would cause NB error msgs
-    }
-    
+        
     public boolean connect() {
+        Logger.getLogger("com.mongodb").setLevel(Level.SEVERE); // turn off logging - logging would cause NB error msgs
+        
         if(isConnected())
             disconnect();
         

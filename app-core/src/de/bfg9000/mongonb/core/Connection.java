@@ -107,7 +107,7 @@ public class Connection {
         }        
     }
 
-    public Collection<Database> getDatabases() {
+    public java.util.Collection<Database> getDatabases() {
         if(!isConnected())
             return Collections.EMPTY_LIST;
         

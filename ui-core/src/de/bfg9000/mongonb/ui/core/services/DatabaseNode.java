@@ -17,7 +17,7 @@ class DatabaseNode extends AbstractNode {
     private final Database database;
     
     public DatabaseNode(Database database) {
-        super(Children.LEAF);        
+        super(Children.create(new CollectionNodeFactory(database), true));        
         this.database = database;
         
         setIconBaseWithExtension(ICON);        

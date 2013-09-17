@@ -28,6 +28,7 @@ class EditConnectionAction extends AbstractAction {
     public void actionPerformed(ActionEvent e) {
         final ConnectionEditorDialog editor = new ConnectionEditorDialog();
         if(editor.execute(connection)) {
+            connection.disconnect();
             ConnectionManager.INSTANCE.remove(connection);
             ConnectionManager.INSTANCE.add(editor.getConnection());            
         }

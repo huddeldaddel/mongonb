@@ -1,8 +1,10 @@
 package de.bfg9000.mongonb.core;
 
 import com.mongodb.MongoClient;
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.net.UnknownHostException;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombok.Getter;
@@ -28,6 +30,30 @@ public class Connection {
     @Getter private String name = "";
     @Getter private MongoClient mongoClient;    
     
+    /**
+     * Add a PropertyChangeListener to the listener list.
+     * The listener is registered for all properties. The same listener object may be added more than once, and will be 
+     * called as many times as it is added. If <code>listener</code> is null, no exception is thrown and no action is 
+     * taken.
+     *
+     * @param listener  The PropertyChangeListener to be added
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        propSupport.addPropertyChangeListener(listener);
+    }
+
+    /**
+     * Remove a PropertyChangeListener from the listener list.
+     * This removes a PropertyChangeListener that was registered for all properties. If <code>listener</code> was added
+     * more than once to the same event source, it will be notified one less time after being removed. If 
+     * <code>listener</code> is null, or was never added, no exception is thrown and no action is taken.
+     *
+     * @param listener  The PropertyChangeListener to be removed
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener) {
+        propSupport.removePropertyChangeListener(listener);
+    }
+    
     public void setHost(String host) {
         final String old = this.host;
         this.host = host;
@@ -48,8 +74,8 @@ public class Connection {
     
     public boolean connect() {
         Logger.getLogger("com.mongodb").setLevel(Level.SEVERE); // turn off logging - logging would cause NB error msgs
-        final boolean old = isConnected();
-        if(isConnected())
+        final boolean wasConneced = isConnected();
+        if(wasConneced)
             disconnect();
         
         try {
@@ -57,7 +83,7 @@ public class Connection {
         } catch(UnknownHostException ignore) { }
         
         final boolean connected = isConnected();
-        propSupport.firePropertyChange(PROPERTY_CONNECTED, old, connected);
+        propSupport.firePropertyChange(PROPERTY_CONNECTED, wasConneced, connected);
         return connected;                 
     }
     
@@ -81,6 +107,17 @@ public class Connection {
         }        
     }
 
+    public Collection<Database> getDatabases() {
+        if(!isConnected())
+            return Collections.EMPTY_LIST;
+        
+        final List<Database> result = new LinkedList<Database>();
+        for(String dbName: mongoClient.getDatabaseNames())
+            result.add(new Database(this, dbName));
+        Collections.sort(result, new DatabaseNameComparator());
+        return result;
+    }
+    
     @Override
     public Connection clone() {
         final Connection result = new Connection();
@@ -89,6 +126,18 @@ public class Connection {
         result.setPort(port);
         result.mongoClient = null;
         return result;
+    }
+    
+    /**
+     * Used to sort {@code Connection}s by their names.
+     */
+    private static final class DatabaseNameComparator implements Comparator<Database> {
+
+        @Override
+        public int compare(Database o1, Database o2) {
+            return o1.getName().compareTo(o2.getName());
+        }
+
     }
     
 }

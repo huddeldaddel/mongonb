@@ -52,10 +52,10 @@ public final class QueryTopComponent extends TopComponent {
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         epEditor = new javax.swing.JEditorPane();
@@ -91,12 +91,6 @@ public final class QueryTopComponent extends TopComponent {
         jButton3.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jToolBar1.add(jButton3);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.jLabel1.text")); // NOI18N
-        jToolBar1.add(jLabel1);
-
-        jTextField1.setText(org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.jTextField1.text")); // NOI18N
-        jToolBar1.add(jTextField1);
-
         jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/go-next.png"))); // NOI18N
         jButton4.setFocusable(false);
         jButton4.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -109,7 +103,17 @@ public final class QueryTopComponent extends TopComponent {
         jButton5.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         jToolBar1.add(jButton5);
 
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.jLabel1.text")); // NOI18N
+        jLabel1.setPreferredSize(new java.awt.Dimension(65, 16));
+        jToolBar1.add(jLabel1);
+
+        jTextField1.setText(org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.jTextField1.text")); // NOI18N
+        jToolBar1.add(jTextField1);
+
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.jLabel2.text")); // NOI18N
+        jLabel2.setPreferredSize(new java.awt.Dimension(80, 16));
         jToolBar1.add(jLabel2);
 
         jPanel1.add(jToolBar1, java.awt.BorderLayout.NORTH);

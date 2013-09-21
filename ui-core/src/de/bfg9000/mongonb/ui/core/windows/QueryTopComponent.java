@@ -44,8 +44,7 @@ public final class QueryTopComponent extends TopComponent {
     @Getter @Setter private Collection collection;
     
     public QueryTopComponent() {
-        initComponents();
-        initEditor();        
+        initComponents();                
         
         setName(Bundle.CTL_QueryTopComponent());
         setToolTipText(Bundle.HINT_QueryTopComponent());
@@ -59,17 +58,20 @@ public final class QueryTopComponent extends TopComponent {
     private void initComponents() {
 
         spltSplitter = new javax.swing.JSplitPane();
-        jPanel1 = new javax.swing.JPanel();
-        jToolBar1 = new javax.swing.JToolBar();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jLabel2 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        pnlResultArea = new javax.swing.JPanel();
+        tbDataNavigation = new javax.swing.JToolBar();
+        btnReload = new javax.swing.JButton();
+        btnGoFirst = new javax.swing.JButton();
+        btnGoPrevious = new javax.swing.JButton();
+        btnGoNext = new javax.swing.JButton();
+        btnGoLast = new javax.swing.JButton();
+        lblPageSize = new javax.swing.JLabel();
+        txtPageSize = new javax.swing.JTextField();
+        lblTotalRowsInfo = new javax.swing.JLabel();
+        lblTotalRows = new javax.swing.JLabel();
+        scrData = new javax.swing.JScrollPane();
+        tblData = new com.jidesoft.grid.HierarchicalTable();
+        scrEditor = new javax.swing.JScrollPane();
         epEditor = new javax.swing.JEditorPane();
         tbToolBar = new javax.swing.JToolBar();
         lblConnectionInfo = new javax.swing.JLabel();
@@ -81,60 +83,66 @@ public final class QueryTopComponent extends TopComponent {
         spltSplitter.setDividerLocation(200);
         spltSplitter.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
-        jPanel1.setLayout(new java.awt.BorderLayout());
+        pnlResultArea.setLayout(new java.awt.BorderLayout());
 
-        jToolBar1.setRollover(true);
+        tbDataNavigation.setRollover(true);
 
-        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/view-refresh.png"))); // NOI18N
-        jButton1.setFocusable(false);
-        jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jToolBar1.add(jButton1);
+        btnReload.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/view-refresh.png"))); // NOI18N
+        btnReload.setFocusable(false);
+        btnReload.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnReload.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        tbDataNavigation.add(btnReload);
 
-        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/go-first.png"))); // NOI18N
-        jButton2.setFocusable(false);
-        jButton2.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton2.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jToolBar1.add(jButton2);
+        btnGoFirst.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/go-first.png"))); // NOI18N
+        btnGoFirst.setFocusable(false);
+        btnGoFirst.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnGoFirst.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        tbDataNavigation.add(btnGoFirst);
 
-        jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/go-previous.png"))); // NOI18N
-        jButton3.setFocusable(false);
-        jButton3.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton3.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jToolBar1.add(jButton3);
+        btnGoPrevious.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/go-previous.png"))); // NOI18N
+        btnGoPrevious.setFocusable(false);
+        btnGoPrevious.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnGoPrevious.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        tbDataNavigation.add(btnGoPrevious);
 
-        jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/go-next.png"))); // NOI18N
-        jButton4.setFocusable(false);
-        jButton4.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton4.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jToolBar1.add(jButton4);
+        btnGoNext.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/go-next.png"))); // NOI18N
+        btnGoNext.setFocusable(false);
+        btnGoNext.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnGoNext.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        tbDataNavigation.add(btnGoNext);
 
-        jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/go-last.png"))); // NOI18N
-        jButton5.setFocusable(false);
-        jButton5.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton5.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jToolBar1.add(jButton5);
+        btnGoLast.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/go-last.png"))); // NOI18N
+        btnGoLast.setFocusable(false);
+        btnGoLast.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnGoLast.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        tbDataNavigation.add(btnGoLast);
 
-        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.jLabel1.text")); // NOI18N
-        jLabel1.setPreferredSize(new java.awt.Dimension(65, 16));
-        jToolBar1.add(jLabel1);
+        lblPageSize.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        org.openide.awt.Mnemonics.setLocalizedText(lblPageSize, org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.lblPageSize.text")); // NOI18N
+        lblPageSize.setPreferredSize(new java.awt.Dimension(65, 16));
+        tbDataNavigation.add(lblPageSize);
 
-        jTextField1.setText(org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.jTextField1.text")); // NOI18N
-        jToolBar1.add(jTextField1);
+        txtPageSize.setText(org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.txtPageSize.text")); // NOI18N
+        txtPageSize.setPreferredSize(new java.awt.Dimension(30, 28));
+        tbDataNavigation.add(txtPageSize);
 
-        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.jLabel2.text")); // NOI18N
-        jLabel2.setPreferredSize(new java.awt.Dimension(80, 16));
-        jToolBar1.add(jLabel2);
+        lblTotalRowsInfo.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        org.openide.awt.Mnemonics.setLocalizedText(lblTotalRowsInfo, org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.lblTotalRowsInfo.text")); // NOI18N
+        lblTotalRowsInfo.setPreferredSize(new java.awt.Dimension(80, 16));
+        tbDataNavigation.add(lblTotalRowsInfo);
+        tbDataNavigation.add(lblTotalRows);
 
-        jPanel1.add(jToolBar1, java.awt.BorderLayout.NORTH);
+        pnlResultArea.add(tbDataNavigation, java.awt.BorderLayout.NORTH);
 
-        spltSplitter.setRightComponent(jPanel1);
+        scrData.setViewportView(tblData);
 
-        jScrollPane1.setViewportView(epEditor);
+        pnlResultArea.add(scrData, java.awt.BorderLayout.CENTER);
 
-        spltSplitter.setTopComponent(jScrollPane1);
+        spltSplitter.setRightComponent(pnlResultArea);
+
+        scrEditor.setViewportView(epEditor);
+
+        spltSplitter.setTopComponent(scrEditor);
 
         add(spltSplitter, java.awt.BorderLayout.CENTER);
 
@@ -166,23 +174,26 @@ public final class QueryTopComponent extends TopComponent {
     }//GEN-LAST:event_btnRunQueryActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnGoFirst;
+    private javax.swing.JButton btnGoLast;
+    private javax.swing.JButton btnGoNext;
+    private javax.swing.JButton btnGoPrevious;
+    private javax.swing.JButton btnReload;
     private javax.swing.JButton btnRunQuery;
     private javax.swing.JEditorPane epEditor;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JToolBar jToolBar1;
     private javax.swing.JLabel lblConnection;
     private javax.swing.JLabel lblConnectionInfo;
+    private javax.swing.JLabel lblPageSize;
+    private javax.swing.JLabel lblTotalRows;
+    private javax.swing.JLabel lblTotalRowsInfo;
+    private javax.swing.JPanel pnlResultArea;
+    private javax.swing.JScrollPane scrData;
+    private javax.swing.JScrollPane scrEditor;
     private javax.swing.JSplitPane spltSplitter;
+    private javax.swing.JToolBar tbDataNavigation;
     private javax.swing.JToolBar tbToolBar;
+    private com.jidesoft.grid.HierarchicalTable tblData;
+    private javax.swing.JTextField txtPageSize;
     // End of variables declaration//GEN-END:variables
 
     void writeProperties(java.util.Properties p) {
@@ -196,6 +207,7 @@ public final class QueryTopComponent extends TopComponent {
     @Override
     protected void componentOpened() {
         initWindowName();
+        initEditor();
         initConnectionLabel();
     }
 

@@ -1,7 +1,12 @@
 package de.bfg9000.mongonb.ui.core.windows;
 
+import com.mongodb.DBCursor;
 import de.bfg9000.mongonb.core.Collection;
 import java.io.IOException;
+import java.text.MessageFormat;
+import java.text.NumberFormat;
+import java.util.ResourceBundle;
+import javax.swing.SwingWorker;
 import javax.swing.text.Document;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,10 +17,15 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.text.CloneableEditorSupport;
 import org.openide.windows.TopComponent;
+import org.openide.util.NbBundle;
 import org.openide.util.NbBundle.Messages;
+import org.openide.windows.IOProvider;
+import org.openide.windows.InputOutput;
+import org.openide.windows.Mode;
+import org.openide.windows.WindowManager;
 
 /**
- * Top component which displays something.
+ * Top component which displays an editor to enter JSON objects and a result table.
  */
 @ConvertAsProperties(dtd = "-//de.bfg9000.mongonb.ui.core.windows//Query//EN", autostore = false)
 @TopComponent.Description(
@@ -29,6 +39,8 @@ import org.openide.util.NbBundle.Messages;
 })
 public final class QueryTopComponent extends TopComponent {
 
+    private static final ResourceBundle bundle = NbBundle.getBundle(QueryTopComponent.class);
+    
     @Getter @Setter private Collection collection;
     
     public QueryTopComponent() {
@@ -139,10 +151,19 @@ public final class QueryTopComponent extends TopComponent {
         btnRunQuery.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnRunQuery.setMargin(new java.awt.Insets(0, 5, 0, 0));
         btnRunQuery.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnRunQuery.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRunQueryActionPerformed(evt);
+            }
+        });
         tbToolBar.add(btnRunQuery);
 
         add(tbToolBar, java.awt.BorderLayout.NORTH);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnRunQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRunQueryActionPerformed
+        runQuery();
+    }//GEN-LAST:event_btnRunQueryActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnRunQuery;
@@ -172,6 +193,49 @@ public final class QueryTopComponent extends TopComponent {
         // String version = p.getProperty("version");        
     }
 
+    @Override
+    protected void componentOpened() {
+        initWindowName();
+        initConnectionLabel();
+    }
+
+    private void runQuery() {
+        new QueryWorker().execute();        
+    }
+    
+    private void initConnectionLabel() {
+        final StringBuilder builder = new StringBuilder();
+        builder.append(collection.getConnection().getHost())
+               .append(":")
+               .append(collection.getConnection().getPort())
+               .append("/")
+               .append(collection.getDatabase())
+               .append("/")
+               .append(collection.getName());
+        lblConnection.setText(builder.toString());
+    }
+    
+    private void initWindowName() {
+        final String nameTemplate = bundle.getString("QueryTopComponent.name");        
+        final Mode editorMode = WindowManager.getDefault().findMode("editor");
+        final TopComponent[] openedTopComponents = WindowManager.getDefault().getOpenedTopComponents(editorMode);
+        
+        String name = "";
+        int counter = 0;
+        boolean found = true;
+        while(found) {
+            found = false;
+            name = MessageFormat.format(nameTemplate, ++counter);
+            for(TopComponent tc: openedTopComponents)
+                if(name.equals(tc.getName())) {
+                    found = true;
+                    break;
+                }
+        }
+        
+        setName(name);
+    }
+    
     private void initEditor() {        
         epEditor.setEditorKit(CloneableEditorSupport.getEditorKit("text/x-javascript"));        
         try {            
@@ -181,6 +245,60 @@ public final class QueryTopComponent extends TopComponent {
             epEditor.setText("{\n\t\n}");
         } catch(IOException ex) {            
         }
+    }
+    
+    /**
+     * Executes the query asynchronously, then updates the UI.
+     */
+    private final class QueryWorker extends SwingWorker<DBCursor, Void> {
+
+        private long durationInMillis = 0;
+        private String errorMessage = null;
+        
+        @Override
+        protected DBCursor doInBackground() throws Exception {
+            final long start = System.currentTimeMillis();
+            try {
+                final DBCursor cursor = collection.executeQuery(epEditor.getText());
+                return cursor.skip(0).limit(100);
+            } catch(Exception ex) {
+                errorMessage = ex.getMessage();
+                return null;
+            } finally {
+                final long end =  System.currentTimeMillis();
+                durationInMillis = end -start;
+            }            
+        }
+        
+        @Override
+        protected void done() {
+            IOProvider.getDefault().getIO(getName(), false).closeInputOutput();
+            final InputOutput io = IOProvider.getDefault().getIO(getName(), true);            
+            try {
+                final String duration = NumberFormat.getNumberInstance().format(durationInMillis / 1000.0);
+                final DBCursor cursor = get();
+                if(null == cursor) {
+                    final String template = bundle.getString("QueryTopComponent.queryFailure");
+                    io.getOut().println(MessageFormat.format(template, duration));
+                    if(null != errorMessage)
+                        io.getErr().println("\n" +errorMessage.replaceAll("Source: java.io.StringReader@(.+?); ", ""));
+                } else {                    
+                    final String template = bundle.getString("QueryTopComponent.querySuccess");
+                    io.getOut().println(MessageFormat.format(template, duration));
+                    
+                    while(cursor.hasNext())
+                        System.out.println("> " +cursor.next().toString());
+                }
+                
+            } catch(Exception ignored) {                
+            } finally {
+                io.select();
+                io.getErr().close();
+                io.getOut().close();
+            }
+            
+        }
+        
     }
     
 }

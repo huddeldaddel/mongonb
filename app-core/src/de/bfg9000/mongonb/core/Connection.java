@@ -83,16 +83,21 @@ public class Connection {
         } catch(UnknownHostException ignore) { }
         
         final boolean connected = isConnected();
+        if(!connected) {
+            mongoClient.close();
+            mongoClient = null;
+        }
         propSupport.firePropertyChange(PROPERTY_CONNECTED, wasConneced, connected);
         return connected;                 
     }
     
     public void disconnect() {        
-        if(isConnected()) {
-            mongoClient.close();
-            mongoClient = null;
-            propSupport.firePropertyChange(PROPERTY_CONNECTED, true, false);
-        }
+        if(null == mongoClient)
+            return;
+        
+        mongoClient.close();
+        mongoClient = null;
+        propSupport.firePropertyChange(PROPERTY_CONNECTED, true, false);        
     }
     
     public boolean isConnected() {

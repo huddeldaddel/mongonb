@@ -36,7 +36,7 @@ class DatabaseNodeFactory extends ChildFactory<Database> implements PropertyChan
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if(evt.getPropertyName().equals(Connection.PROPERTY_CONNECTED))
-            refresh(true);
+            refresh(false);
     }
     
 }

@@ -22,11 +22,18 @@ class ConnectionNode extends AbstractNode implements PropertyChangeListener {
     public static final String ICON_DISCONNECTED = "de/bfg9000/mongonb/ui/core/images/disconnected.png";   
     
     private final Connection connection;
+    private final ConnectAction connectAction;
+    private final DisconnectAction disconnectAction;
     
     public ConnectionNode(Connection connection) {
         super(Children.create(new DatabaseNodeFactory(connection), true));        
         this.connection = connection;
         this.connection.addPropertyChangeListener(this);
+        
+        connectAction = new ConnectAction(connection);
+        connectAction.setEnabled(true);
+        disconnectAction = new DisconnectAction(connection);
+        disconnectAction.setEnabled(false);
         
         setName(connection.getName());
         setIconBaseWithExtension(connection.isConnected() ? ICON_CONNECTED : ICON_DISCONNECTED);        
@@ -34,14 +41,14 @@ class ConnectionNode extends AbstractNode implements PropertyChangeListener {
     
     @Override
     public Action getPreferredAction() {
-        return connection.isConnected() ? null : new ConnectAction(connection);
+        return connectAction.isEnabled() ? connectAction : null;                
     }
     
     @Override
     public Action[] getActions(boolean context) {
         return new Action[] { 
-            new ConnectAction(connection),
-            new DisconnectAction(connection),
+            connectAction,
+            disconnectAction,
             new DeleteConnectionAction(connection),
             new EditConnectionAction(connection)
         };        
@@ -50,8 +57,12 @@ class ConnectionNode extends AbstractNode implements PropertyChangeListener {
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if(evt.getPropertyName().equals(Connection.PROPERTY_CONNECTED)) {
-            setIconBaseWithExtension(Boolean.TRUE.equals(evt.getNewValue()) ? ICON_CONNECTED : ICON_DISCONNECTED);
+            final boolean connected = Boolean.TRUE.equals(evt.getNewValue());
+            setIconBaseWithExtension(connected ? ICON_CONNECTED : ICON_DISCONNECTED);
             fireIconChange();
+            
+            connectAction.setEnabled(!connected);
+            disconnectAction.setEnabled(connected);
         }
     }
     

@@ -7,8 +7,8 @@ import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.util.ResourceBundle;
 import javax.swing.SwingWorker;
+import javax.swing.table.TableColumn;
 import javax.swing.text.Document;
-import lombok.Getter;
 import lombok.Setter;
 import org.netbeans.api.editor.DialogBinding;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -41,7 +41,8 @@ public final class QueryTopComponent extends TopComponent {
 
     private static final ResourceBundle bundle = NbBundle.getBundle(QueryTopComponent.class);
     
-    @Getter @Setter private Collection collection;
+    @Setter private Collection collection;
+    private DataCache dataCache;
     
     public QueryTopComponent() {
         initComponents();                
@@ -123,6 +124,7 @@ public final class QueryTopComponent extends TopComponent {
         tbDataNavigation.add(lblPageSize);
 
         txtPageSize.setText(org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.txtPageSize.text")); // NOI18N
+        txtPageSize.setMaximumSize(new java.awt.Dimension(30, 28));
         txtPageSize.setPreferredSize(new java.awt.Dimension(30, 28));
         tbDataNavigation.add(txtPageSize);
 
@@ -259,6 +261,16 @@ public final class QueryTopComponent extends TopComponent {
         }
     }
     
+    private void updateTable() {        
+        tblData.setModel(new QueryTableModel(dataCache));
+        if(0 < tblData.getColumnCount()) {
+            final TableColumn column = tblData.getColumnModel().getColumn(0);            
+            column.setMaxWidth(60);
+            column.setMinWidth(60);
+            column.setPreferredWidth(60);
+        }
+    }
+    
     /**
      * Executes the query asynchronously, then updates the UI.
      */
@@ -271,8 +283,7 @@ public final class QueryTopComponent extends TopComponent {
         protected DBCursor doInBackground() throws Exception {
             final long start = System.currentTimeMillis();
             try {
-                final DBCursor cursor = collection.executeQuery(epEditor.getText());
-                return cursor.skip(0).limit(100);
+                return collection.executeQuery(epEditor.getText());                
             } catch(Exception ex) {
                 errorMessage = ex.getMessage();
                 return null;
@@ -294,14 +305,13 @@ public final class QueryTopComponent extends TopComponent {
                     io.getOut().println(MessageFormat.format(template, duration));
                     if(null != errorMessage)
                         io.getErr().println("\n" +errorMessage.replaceAll("Source: java.io.StringReader@(.+?); ", ""));
+                    dataCache = DataCache.EMPTY;
                 } else {                    
                     final String template = bundle.getString("QueryTopComponent.querySuccess");
                     io.getOut().println(MessageFormat.format(template, duration));
-                    
-                    while(cursor.hasNext())
-                        System.out.println("> " +cursor.next().toString());
+                    dataCache = new DataCache(cursor, Integer.parseInt(txtPageSize.getText()));                    
                 }
-                
+                updateTable();
             } catch(Exception ignored) {                
             } finally {
                 io.select();

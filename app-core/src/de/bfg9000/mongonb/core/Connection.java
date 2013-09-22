@@ -7,6 +7,7 @@ import java.net.UnknownHostException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -87,7 +88,14 @@ public class Connection {
             mongoClient.close();
             mongoClient = null;
         }
-        propSupport.firePropertyChange(PROPERTY_CONNECTED, wasConneced, connected);
+        
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                propSupport.firePropertyChange(PROPERTY_CONNECTED, wasConneced, connected);
+            }
+        });
+        
         return connected;                 
     }
     
@@ -97,7 +105,12 @@ public class Connection {
         
         mongoClient.close();
         mongoClient = null;
-        propSupport.firePropertyChange(PROPERTY_CONNECTED, true, false);        
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                propSupport.firePropertyChange(PROPERTY_CONNECTED, true, false);        
+            }
+        });        
     }
     
     public boolean isConnected() {

@@ -20,27 +20,24 @@ class DataCache {
     public static final DataCache EMPTY = new DataCache(new EmptySource(), 20);
     
     private final List<DBObject> cache = new ArrayList<DBObject>();
-    
+        
     @Getter protected Source source;
+    @Getter private final String query;
     @Getter private int windowSize = 20;        // size of the content window
     @Getter private int windowPosition = 0;     // index of the first visible element in the content window
     
-    public DataCache(DBCursor cursor, int defaultWindowSize) {
+    public DataCache(DBCursor cursor, int defaultWindowSize, String query) {
         source = new Source(cursor);
-        windowSize = defaultWindowSize;
-        
-        final int missingObjects = windowPosition +windowSize -cache.size();
-        if(missingObjects > 0)
-            loadData(missingObjects);
+        windowSize = defaultWindowSize;        
+        this.query = query;
+        loadMissingObjects();
     }        
     
     protected DataCache(Source source, int defaultWindowSize) {
+        query = "";
         this.source = source;
         windowSize = defaultWindowSize;
-        
-        final int missingObjects = windowPosition +windowSize -cache.size();
-        if(missingObjects > 0)
-            loadData(missingObjects);
+        loadMissingObjects();
     }
     
     public boolean canMoveForward() {
@@ -51,6 +48,18 @@ class DataCache {
         return windowPosition > 0;
     }
     
+    public void moveFirst() {
+        windowPosition = 0;
+    }
+    
+    public void moveLast() {
+        int pos = getCount() / windowSize;
+        if((getCount() % windowSize) == 0)
+            pos--;
+        windowPosition = windowSize *pos;        
+        loadMissingObjects();
+    }
+    
     /**
      * Moves the window position forward (windowPosition += windowSize)
      */
@@ -59,9 +68,7 @@ class DataCache {
             return;
             
         windowPosition += windowSize;
-        final int missingObjects = windowPosition +windowSize -cache.size();
-        if(missingObjects > 0)
-            loadData(missingObjects);
+        loadMissingObjects();
     }
     
     /**
@@ -85,6 +92,12 @@ class DataCache {
             if(source.hasNext())
                 cache.add(source.next());
     }
+
+    private void loadMissingObjects() {
+        final int missingObjects = windowPosition +windowSize -cache.size();
+        if(missingObjects > 0)
+            loadData(missingObjects);
+    }
     
     /**
      * Encapsulates the DBCursor. We don't want to depend on a database in unit tests!
@@ -95,7 +108,7 @@ class DataCache {
         private Integer count = null;
         
         public Source(DBCursor cursor) {
-            this.cursor = cursor;
+            this.cursor = cursor;            
         }
         
         public boolean hasNext() {

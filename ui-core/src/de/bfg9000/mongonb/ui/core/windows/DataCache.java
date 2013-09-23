@@ -33,7 +33,7 @@ class DataCache {
         loadMissingObjects();
     }        
     
-    protected DataCache(Source source, int defaultWindowSize) {
+    public DataCache(Source source, int defaultWindowSize) {
         query = "";
         this.source = source;
         windowSize = defaultWindowSize;
@@ -97,58 +97,6 @@ class DataCache {
         final int missingObjects = windowPosition +windowSize -cache.size();
         if(missingObjects > 0)
             loadData(missingObjects);
-    }
-    
-    /**
-     * Encapsulates the DBCursor. We don't want to depend on a database in unit tests!
-     */
-    protected static class Source {
-        
-        private final DBCursor cursor;    
-        private Integer count = null;
-        
-        public Source(DBCursor cursor) {
-            this.cursor = cursor;            
-        }
-        
-        public boolean hasNext() {
-            return cursor.hasNext();
-        }
-        
-        public DBObject next() {
-            return cursor.next();
-        }
-        
-        public int getCount() {
-            return null == count ? count = cursor.count() : count;            
-        }
-        
-    }
-    
-    /**
-     * A source that returns no content.
-     */
-    private static final class EmptySource extends Source {
-        
-        public EmptySource() {
-            super(null);
-        }
-        
-        @Override
-        public boolean hasNext() {
-            return false;
-        }
-        
-        @Override
-        public DBObject next() {
-            return null;
-        }
-        
-        @Override
-        public int getCount() {
-            return 0;
-        }
-        
     }
     
 }

@@ -1,5 +1,6 @@
 package de.bfg9000.mongonb.ui.core.windows;
 
+import com.jidesoft.FitScrollPane;
 import com.jidesoft.grid.HierarchicalTable;
 import com.jidesoft.grid.HierarchicalTableComponentFactory;
 import com.jidesoft.grid.TreeLikeHierarchicalPanel;

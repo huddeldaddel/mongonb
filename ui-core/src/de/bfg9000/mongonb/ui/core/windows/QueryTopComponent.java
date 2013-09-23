@@ -9,6 +9,7 @@ import java.util.ResourceBundle;
 import javax.swing.SwingWorker;
 import javax.swing.table.TableColumn;
 import javax.swing.text.Document;
+import lombok.AllArgsConstructor;
 import lombok.Setter;
 import org.netbeans.api.editor.DialogBinding;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -91,33 +92,63 @@ public final class QueryTopComponent extends TopComponent {
         tbDataNavigation.setRollover(true);
 
         btnReload.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/view-refresh.png"))); // NOI18N
+        btnReload.setEnabled(false);
         btnReload.setFocusable(false);
         btnReload.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnReload.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnReload.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReloadActionPerformed(evt);
+            }
+        });
         tbDataNavigation.add(btnReload);
 
         btnGoFirst.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/go-first.png"))); // NOI18N
+        btnGoFirst.setEnabled(false);
         btnGoFirst.setFocusable(false);
         btnGoFirst.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnGoFirst.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnGoFirst.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGoFirstActionPerformed(evt);
+            }
+        });
         tbDataNavigation.add(btnGoFirst);
 
         btnGoPrevious.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/go-previous.png"))); // NOI18N
+        btnGoPrevious.setEnabled(false);
         btnGoPrevious.setFocusable(false);
         btnGoPrevious.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnGoPrevious.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnGoPrevious.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGoPreviousActionPerformed(evt);
+            }
+        });
         tbDataNavigation.add(btnGoPrevious);
 
         btnGoNext.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/go-next.png"))); // NOI18N
+        btnGoNext.setEnabled(false);
         btnGoNext.setFocusable(false);
         btnGoNext.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnGoNext.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnGoNext.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGoNextActionPerformed(evt);
+            }
+        });
         tbDataNavigation.add(btnGoNext);
 
         btnGoLast.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/go-last.png"))); // NOI18N
+        btnGoLast.setEnabled(false);
         btnGoLast.setFocusable(false);
         btnGoLast.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnGoLast.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnGoLast.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGoLastActionPerformed(evt);
+            }
+        });
         tbDataNavigation.add(btnGoLast);
 
         lblPageSize.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
@@ -177,6 +208,49 @@ public final class QueryTopComponent extends TopComponent {
         runQuery();
     }//GEN-LAST:event_btnRunQueryActionPerformed
 
+    private void btnGoFirstActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoFirstActionPerformed
+        new NavigationWorker(new Runnable() {
+            @Override
+            public void run() {
+                dataCache.moveFirst();
+            }
+        }).execute();
+    }//GEN-LAST:event_btnGoFirstActionPerformed
+
+    private void btnGoPreviousActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoPreviousActionPerformed
+        new NavigationWorker(new Runnable() {
+            @Override
+            public void run() {
+                dataCache.moveReverse();
+            }
+        }).execute();
+    }//GEN-LAST:event_btnGoPreviousActionPerformed
+
+    private void btnGoNextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoNextActionPerformed
+        new NavigationWorker(new Runnable() {
+            @Override
+            public void run() {
+                dataCache.moveForward();
+            }
+        }).execute();
+    }//GEN-LAST:event_btnGoNextActionPerformed
+
+    private void btnGoLastActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoLastActionPerformed
+        new NavigationWorker(new Runnable() {
+            @Override
+            public void run() {
+                dataCache.moveLast();
+            }
+        }).execute();
+    }//GEN-LAST:event_btnGoLastActionPerformed
+
+    private void btnReloadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReloadActionPerformed
+        if(dataCache == DataCache.EMPTY)
+            return;
+        
+        new QueryWorker(dataCache.getQuery()).execute();        
+    }//GEN-LAST:event_btnReloadActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnGoFirst;
     private javax.swing.JButton btnGoLast;
@@ -216,7 +290,7 @@ public final class QueryTopComponent extends TopComponent {
     }
 
     private void runQuery() {
-        new QueryWorker().execute();        
+        new QueryWorker(epEditor.getText()).execute();        
     }
     
     private void initConnectionLabel() {
@@ -271,6 +345,12 @@ public final class QueryTopComponent extends TopComponent {
             column.setMinWidth(60);
             column.setPreferredWidth(60);
         }
+        btnReload.setEnabled(true);
+        btnGoFirst.setEnabled(dataCache.canMoveReverse());
+        btnGoPrevious.setEnabled(dataCache.canMoveReverse());
+        btnGoNext.setEnabled(dataCache.canMoveForward());
+        btnGoLast.setEnabled(dataCache.canMoveForward());
+        lblTotalRows.setText(Integer.toString(dataCache.getCount()));
     }
     
     /**
@@ -278,14 +358,19 @@ public final class QueryTopComponent extends TopComponent {
      */
     private final class QueryWorker extends SwingWorker<DBCursor, Void> {
 
+        private final String query;
         private long durationInMillis = 0;
         private String errorMessage = null;
+        
+        public QueryWorker(String query) {
+            this.query = query;
+        }
         
         @Override
         protected DBCursor doInBackground() throws Exception {
             final long start = System.currentTimeMillis();
             try {
-                return collection.executeQuery(epEditor.getText());                
+                return collection.executeQuery(query);                
             } catch(Exception ex) {
                 errorMessage = ex.getMessage();
                 return null;
@@ -311,7 +396,7 @@ public final class QueryTopComponent extends TopComponent {
                 } else {                    
                     final String template = bundle.getString("QueryTopComponent.querySuccess");
                     io.getOut().println(MessageFormat.format(template, duration));
-                    dataCache = new DataCache(cursor, Integer.parseInt(txtPageSize.getText()));                    
+                    dataCache = new DataCache(cursor, Integer.parseInt(txtPageSize.getText()), query);                    
                 }
                 updateTable();
             } catch(Exception ignored) {                
@@ -321,6 +406,27 @@ public final class QueryTopComponent extends TopComponent {
                 io.getOut().close();
             }
             
+        }
+        
+    }
+    
+    /**
+     * Loads missing data asynchronously, then updates the UI.
+     */
+    @AllArgsConstructor
+    private final class NavigationWorker extends SwingWorker<Void, Void> {
+
+        private final Runnable task;
+        
+        @Override
+        protected Void doInBackground() throws Exception {
+            task.run();
+            return null;
+        }
+        
+        @Override
+        protected void done() {
+            updateTable();
         }
         
     }

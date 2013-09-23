@@ -1,10 +1,13 @@
 package de.bfg9000.mongonb.ui.core.windows;
 
 import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 import de.bfg9000.mongonb.core.Collection;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
+import java.util.Collections;
+import java.util.List;
 import java.util.ResourceBundle;
 import javax.swing.SwingWorker;
 import javax.swing.table.TableColumn;
@@ -81,6 +84,8 @@ public final class QueryTopComponent extends TopComponent {
         lblConnectionInfo = new javax.swing.JLabel();
         lblConnection = new javax.swing.JLabel();
         btnRunQuery = new javax.swing.JButton();
+        btnAddDocument = new javax.swing.JButton();
+        btnRemoveDocument = new javax.swing.JButton();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -92,6 +97,7 @@ public final class QueryTopComponent extends TopComponent {
         tbDataNavigation.setRollover(true);
 
         btnReload.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/view-refresh.png"))); // NOI18N
+        btnReload.setToolTipText(org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.btnReload.toolTipText")); // NOI18N
         btnReload.setEnabled(false);
         btnReload.setFocusable(false);
         btnReload.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -104,6 +110,7 @@ public final class QueryTopComponent extends TopComponent {
         tbDataNavigation.add(btnReload);
 
         btnGoFirst.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/go-first.png"))); // NOI18N
+        btnGoFirst.setToolTipText(org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.btnGoFirst.toolTipText")); // NOI18N
         btnGoFirst.setEnabled(false);
         btnGoFirst.setFocusable(false);
         btnGoFirst.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -116,6 +123,7 @@ public final class QueryTopComponent extends TopComponent {
         tbDataNavigation.add(btnGoFirst);
 
         btnGoPrevious.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/go-previous.png"))); // NOI18N
+        btnGoPrevious.setToolTipText(org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.btnGoPrevious.toolTipText")); // NOI18N
         btnGoPrevious.setEnabled(false);
         btnGoPrevious.setFocusable(false);
         btnGoPrevious.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -128,6 +136,7 @@ public final class QueryTopComponent extends TopComponent {
         tbDataNavigation.add(btnGoPrevious);
 
         btnGoNext.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/go-next.png"))); // NOI18N
+        btnGoNext.setToolTipText(org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.btnGoNext.toolTipText")); // NOI18N
         btnGoNext.setEnabled(false);
         btnGoNext.setFocusable(false);
         btnGoNext.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -140,6 +149,7 @@ public final class QueryTopComponent extends TopComponent {
         tbDataNavigation.add(btnGoNext);
 
         btnGoLast.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/go-last.png"))); // NOI18N
+        btnGoLast.setToolTipText(org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.btnGoLast.toolTipText")); // NOI18N
         btnGoLast.setEnabled(false);
         btnGoLast.setFocusable(false);
         btnGoLast.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
@@ -190,6 +200,7 @@ public final class QueryTopComponent extends TopComponent {
         tbToolBar.add(lblConnection);
 
         btnRunQuery.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/media-playback-start.png"))); // NOI18N
+        btnRunQuery.setToolTipText(org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.btnRunQuery.toolTipText")); // NOI18N
         btnRunQuery.setFocusable(false);
         btnRunQuery.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
         btnRunQuery.setMargin(new java.awt.Insets(0, 5, 0, 0));
@@ -201,11 +212,35 @@ public final class QueryTopComponent extends TopComponent {
         });
         tbToolBar.add(btnRunQuery);
 
+        btnAddDocument.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/list-add.png"))); // NOI18N
+        btnAddDocument.setToolTipText(org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.btnAddDocument.toolTipText")); // NOI18N
+        btnAddDocument.setFocusable(false);
+        btnAddDocument.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnAddDocument.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnAddDocument.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddDocumentActionPerformed(evt);
+            }
+        });
+        tbToolBar.add(btnAddDocument);
+
+        btnRemoveDocument.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/list-remove.png"))); // NOI18N
+        btnRemoveDocument.setToolTipText(org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.btnRemoveDocument.toolTipText")); // NOI18N
+        btnRemoveDocument.setFocusable(false);
+        btnRemoveDocument.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        btnRemoveDocument.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        btnRemoveDocument.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRemoveDocumentActionPerformed(evt);
+            }
+        });
+        tbToolBar.add(btnRemoveDocument);
+
         add(tbToolBar, java.awt.BorderLayout.NORTH);
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnRunQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRunQueryActionPerformed
-        runQuery();
+        new QueryWorker(epEditor.getText()).execute();
     }//GEN-LAST:event_btnRunQueryActionPerformed
 
     private void btnGoFirstActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoFirstActionPerformed
@@ -245,18 +280,28 @@ public final class QueryTopComponent extends TopComponent {
     }//GEN-LAST:event_btnGoLastActionPerformed
 
     private void btnReloadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReloadActionPerformed
-        if(dataCache == DataCache.EMPTY)
+        if((dataCache.source instanceof EmptySource) || (dataCache.source instanceof CollectionSource))
             return;
         
         new QueryWorker(dataCache.getQuery()).execute();        
     }//GEN-LAST:event_btnReloadActionPerformed
 
+    private void btnAddDocumentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddDocumentActionPerformed
+        new InsertWorker(epEditor.getText()).execute();
+    }//GEN-LAST:event_btnAddDocumentActionPerformed
+
+    private void btnRemoveDocumentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveDocumentActionPerformed
+        new RemoveWorker(epEditor.getText()).execute();
+    }//GEN-LAST:event_btnRemoveDocumentActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAddDocument;
     private javax.swing.JButton btnGoFirst;
     private javax.swing.JButton btnGoLast;
     private javax.swing.JButton btnGoNext;
     private javax.swing.JButton btnGoPrevious;
     private javax.swing.JButton btnReload;
+    private javax.swing.JButton btnRemoveDocument;
     private javax.swing.JButton btnRunQuery;
     private javax.swing.JEditorPane epEditor;
     private javax.swing.JLabel lblConnection;
@@ -287,10 +332,6 @@ public final class QueryTopComponent extends TopComponent {
         initWindowName();
         initEditor();
         initConnectionLabel();
-    }
-
-    private void runQuery() {
-        new QueryWorker(epEditor.getText()).execute();        
     }
     
     private void initConnectionLabel() {
@@ -337,14 +378,17 @@ public final class QueryTopComponent extends TopComponent {
         }
     }
     
-    private void updateTable() {        
+    private void updateTable() {       
         tblData.setModel(new QueryTableModel(dataCache));
+        for(int row=0; row<dataCache.getContent().size(); row++)
+            tblData.refreshRow(row);        
         if(0 < tblData.getColumnCount()) {
             final TableColumn column = tblData.getColumnModel().getColumn(0);            
             column.setMaxWidth(60);
             column.setMinWidth(60);
             column.setPreferredWidth(60);
         }
+        
         btnReload.setEnabled(true);
         btnGoFirst.setEnabled(dataCache.canMoveReverse());
         btnGoPrevious.setEnabled(dataCache.canMoveReverse());
@@ -354,7 +398,7 @@ public final class QueryTopComponent extends TopComponent {
     }
     
     /**
-     * Executes the query asynchronously, then updates the UI.
+     * Executes a query asynchronously, then updates the UI.
      */
     private final class QueryWorker extends SwingWorker<DBCursor, Void> {
 
@@ -370,7 +414,7 @@ public final class QueryTopComponent extends TopComponent {
         protected DBCursor doInBackground() throws Exception {
             final long start = System.currentTimeMillis();
             try {
-                return collection.executeQuery(query);                
+                return collection.query(query);                
             } catch(Exception ex) {
                 errorMessage = ex.getMessage();
                 return null;
@@ -394,9 +438,15 @@ public final class QueryTopComponent extends TopComponent {
                         io.getErr().println("\n" +errorMessage.replaceAll("Source: java.io.StringReader@(.+?); ", ""));
                     dataCache = DataCache.EMPTY;
                 } else {                    
-                    final String template = bundle.getString("QueryTopComponent.querySuccess");
+                    dataCache = new DataCache(cursor, Integer.parseInt(txtPageSize.getText()), query);
+                    String template = bundle.getString("QueryTopComponent.querySuccess");
                     io.getOut().println(MessageFormat.format(template, duration));
-                    dataCache = new DataCache(cursor, Integer.parseInt(txtPageSize.getText()), query);                    
+                    if(1 == dataCache.getCount()) {                        
+                        io.getOut().println(bundle.getString("QueryTopComponent.queryInfoSingle"));
+                    } else {
+                        template = bundle.getString("QueryTopComponent.queryInfo");
+                        io.getOut().println(MessageFormat.format(template, dataCache.getCount()));
+                    }                    
                 }
                 updateTable();
             } catch(Exception ignored) {                
@@ -405,7 +455,130 @@ public final class QueryTopComponent extends TopComponent {
                 io.getErr().close();
                 io.getOut().close();
             }
-            
+            btnReload.setEnabled(true);
+        }
+        
+    }
+    
+    /**
+     * Inserts a new document asynchronously, then updates the UI.
+     */
+    private final class InsertWorker extends SwingWorker<DBObject, Void> {
+
+        private final String query;
+        private long durationInMillis = 0;
+        private String errorMessage = null;
+        
+        public InsertWorker(String query) {
+            this.query = query;
+        }
+        
+        @Override
+        protected DBObject doInBackground() throws Exception {
+            final long start = System.currentTimeMillis();
+            try {
+                return collection.add(query);
+            } catch(Exception ex) {
+                errorMessage = ex.getMessage();
+                return null;
+            } finally {
+                final long end =  System.currentTimeMillis();
+                durationInMillis = end -start;
+            }            
+        }
+        
+        @Override
+        protected void done() {
+            IOProvider.getDefault().getIO(getName(), false).closeInputOutput();
+            final InputOutput io = IOProvider.getDefault().getIO(getName(), true);            
+            try {
+                final String duration = NumberFormat.getNumberInstance().format(durationInMillis / 1000.0);
+                final DBObject dbObject = get();
+                if(null == dbObject) {
+                    final String template = bundle.getString("QueryTopComponent.insertFailure");
+                    io.getOut().println(MessageFormat.format(template, duration));
+                    if(null != errorMessage)
+                        io.getErr().println("\n" +errorMessage.replaceAll("Source: java.io.StringReader@(.+?); ", ""));
+                    dataCache = DataCache.EMPTY;
+                } else {                    
+                    final Source source = new CollectionSource(Collections.singletonList(dbObject));
+                    dataCache = new DataCache(source, Integer.parseInt(txtPageSize.getText()));                    
+                    String template = bundle.getString("QueryTopComponent.insertSuccess");
+                    io.getOut().println(MessageFormat.format(template, duration));                    
+                    io.getOut().println(bundle.getString("QueryTopComponent.insertInfoSingle"));                    
+                }
+                updateTable();
+            } catch(Exception ignored) {                
+            } finally {
+                io.select();
+                io.getErr().close();
+                io.getOut().close();
+            }
+            btnReload.setEnabled(false);
+        }
+        
+    }
+    
+    /**
+     * Executes a query asynchronously, then updates the UI.
+     */
+    private final class RemoveWorker extends SwingWorker<List<DBObject>, Void> {
+
+        private final String query;
+        private long durationInMillis = 0;
+        private String errorMessage = null;
+        
+        public RemoveWorker(String query) {
+            this.query = query;
+        }
+        
+        @Override
+        protected List<DBObject> doInBackground() throws Exception {
+            final long start = System.currentTimeMillis();
+            try {                
+                return collection.remove(query);
+            } catch(Exception ex) {
+                errorMessage = ex.getMessage();
+                return null;
+            } finally {
+                final long end =  System.currentTimeMillis();
+                durationInMillis = end -start;
+            }            
+        }
+        
+        @Override
+        protected void done() {
+            IOProvider.getDefault().getIO(getName(), false).closeInputOutput();
+            final InputOutput io = IOProvider.getDefault().getIO(getName(), true);            
+            try {
+                final String duration = NumberFormat.getNumberInstance().format(durationInMillis / 1000.0);
+                final List<DBObject> dbObjects = get();
+                if(null == dbObjects) {
+                    final String template = bundle.getString("QueryTopComponent.removeFailure");
+                    io.getOut().println(MessageFormat.format(template, duration));
+                    if(null != errorMessage)
+                        io.getErr().println("\n" +errorMessage.replaceAll("Source: java.io.StringReader@(.+?); ", ""));
+                    dataCache = DataCache.EMPTY;
+                } else {                    
+                    final Source source = new CollectionSource(dbObjects);
+                    dataCache = new DataCache(source, Integer.parseInt(txtPageSize.getText()));                    
+                    String template = bundle.getString("QueryTopComponent.removeSuccess");
+                    io.getOut().println(MessageFormat.format(template, duration));
+                    if(1 == dbObjects.size()) {                        
+                        io.getOut().println(bundle.getString("QueryTopComponent.removeInfoSingle"));
+                    } else {
+                        template = bundle.getString("QueryTopComponent.removeInfo");
+                        io.getOut().println(MessageFormat.format(template, dbObjects.size()));
+                    }                    
+                }
+                updateTable();
+            } catch(Exception ignored) {                
+            } finally {
+                io.select();
+                io.getErr().close();
+                io.getOut().close();
+            }
+            btnReload.setEnabled(false);
         }
         
     }

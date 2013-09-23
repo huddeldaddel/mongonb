@@ -1,4 +1,4 @@
-package de.bfg9000.mongonb.ui.core.windows;
+package com.jidesoft;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -14,7 +14,7 @@ import javax.swing.JScrollPane;
  * 
  * @author wernert
  */
-class FitScrollPane extends JScrollPane implements ComponentListener {
+public class FitScrollPane extends JScrollPane implements ComponentListener {
         
     public FitScrollPane() {
         initScrollPane();

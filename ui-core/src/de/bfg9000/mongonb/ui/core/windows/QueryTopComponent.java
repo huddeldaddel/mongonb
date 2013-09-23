@@ -49,6 +49,8 @@ public final class QueryTopComponent extends TopComponent {
         
         setName(Bundle.CTL_QueryTopComponent());
         setToolTipText(Bundle.HINT_QueryTopComponent());
+        
+        tblData.setComponentFactory(new ComponentFactory());
     }
 
     /**

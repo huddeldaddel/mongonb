@@ -10,9 +10,9 @@ import javax.swing.table.AbstractTableModel;
 import lombok.Getter;
 
 /**
- * The {@code TableModel} of the result table. See the JIDE Grids documentation for more details on how to use the
- * {@code HierarchicalTableModel}.
+ * The {@code TableModel} of the result table. 
  * 
+ * @see http://www.jidesoft.com/products/JIDE_Grids_Developer_Guide.pdf
  * @author wernert
  */
 class QueryTableModel extends AbstractTableModel implements HierarchicalTableModel {
@@ -48,6 +48,10 @@ class QueryTableModel extends AbstractTableModel implements HierarchicalTableMod
     
     @Override
     public boolean hasChild(int i) {
+        final DBObject document = data.get(i);
+        for(String key: columns)
+            if(document.get(key) instanceof DBObject)
+                return true;
         return false;
     }
 
@@ -58,12 +62,19 @@ class QueryTableModel extends AbstractTableModel implements HierarchicalTableMod
 
     @Override
     public Object getChildValueAt(int i) {
-        return null;
+        final PropertyObjectList result = new PropertyObjectList();
+        final DBObject document = data.get(i);
+        for(String key: columns) {
+            final Object value = document.get(key);
+            if(value instanceof DBObject)
+                result.add(new PropertyObject(key, (DBObject) value));
+        }
+        return result;
     }
 
     @Override
     public boolean isExpandable(int i) {
-        return false;
+        return hasChild(i);
     }
     
     private List<String> prepareColumns() {

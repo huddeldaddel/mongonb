@@ -26,8 +26,7 @@ public class ConnectionEditorDialog extends javax.swing.JDialog {
     
     private static final ResourceBundle bundle = NbBundle.getBundle(ConnectionEditorDialog.class);
     
-    final UpdateHandler updateHandler = new UpdateHandler();
-    
+    private final UpdateHandler updateHandler = new UpdateHandler();    
     @Getter private Connection connection;
     private boolean newConnection;
     private boolean dialogResult;

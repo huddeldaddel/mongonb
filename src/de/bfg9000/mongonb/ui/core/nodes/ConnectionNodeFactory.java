@@ -11,7 +11,7 @@ import org.openide.nodes.Node;
 /**
  * Creates {@code Node}s for each {@code Connection} registered at the {@code ConnectionManager}.
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 class ConnectionNodeFactory extends ChildFactory<Connection> implements PropertyChangeListener {
 

@@ -11,7 +11,7 @@ import org.openide.util.NbBundle;
 /**
  * Edits a {@code Connection}.
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 public class EditConnectionAction extends AbstractAction {
     

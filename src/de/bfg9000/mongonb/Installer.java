@@ -8,7 +8,7 @@ import org.openide.modules.ModuleInstall;
 /**
  * Initializes the JIDE components with the Open Source license.
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 public class Installer extends ModuleInstall {
 

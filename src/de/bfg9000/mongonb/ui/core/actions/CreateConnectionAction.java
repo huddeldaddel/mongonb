@@ -10,7 +10,7 @@ import org.openide.util.NbBundle;
 /**
  * Creates a new {@code Connection}.
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 public class CreateConnectionAction extends AbstractAction {
     

@@ -14,7 +14,7 @@ import org.openide.util.NbBundle;
  * DBObject.
  * 
  * @see http://www.jidesoft.com/products/JIDE_Grids_Developer_Guide.pdf
- * @author wernert
+ * @author thomaswerner35
  */
 class DBObjectTableModel extends AbstractTableModel implements HierarchicalTableModel {
 

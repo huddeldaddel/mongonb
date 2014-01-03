@@ -9,7 +9,7 @@ import org.openide.util.NbBundle;
 /**
  * Disconnects from a database.
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 public class DisconnectAction extends AbstractAction {
     

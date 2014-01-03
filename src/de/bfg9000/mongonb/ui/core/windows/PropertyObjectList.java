@@ -5,7 +5,7 @@ import java.util.LinkedList;
 /**
  * Used as value class in the hierarchical table.
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 class PropertyObjectList extends LinkedList<PropertyObject> {
     

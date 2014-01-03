@@ -10,7 +10,7 @@ import lombok.Getter;
 /**
  * Caches the data of a database query. Uses lazy loading to get new results when required.
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 class DataCache {
     

@@ -7,7 +7,7 @@ import com.mongodb.DBObject;
  *
  * Encapsulates the DBCursor. We don't want to depend on a database in unit tests!
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 class Source {
     

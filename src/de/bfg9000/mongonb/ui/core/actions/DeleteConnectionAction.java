@@ -11,7 +11,7 @@ import org.openide.util.NbBundle;
 /**
  * Deletes a given {@code Connection}.
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 public class DeleteConnectionAction extends AbstractAction {
     

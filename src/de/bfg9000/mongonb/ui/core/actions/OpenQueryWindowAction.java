@@ -10,7 +10,7 @@ import org.openide.util.NbBundle;
 /**
  * Opens a QueryTopComponent.
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 public class OpenQueryWindowAction extends AbstractAction {
     

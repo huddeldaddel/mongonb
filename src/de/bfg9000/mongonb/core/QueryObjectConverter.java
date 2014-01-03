@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Can be used to convert JSON literals into DBObjects.
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 class QueryObjectConverter {    
     

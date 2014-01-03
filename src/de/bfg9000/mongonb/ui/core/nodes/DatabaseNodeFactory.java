@@ -11,7 +11,7 @@ import org.openide.nodes.Node;
 /**
  * Creates {@code Node}s for each {@code Database} registered at the {@code Connection}.
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 class DatabaseNodeFactory extends ChildFactory<Database> implements PropertyChangeListener {
 

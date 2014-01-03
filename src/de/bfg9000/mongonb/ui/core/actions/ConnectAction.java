@@ -13,7 +13,7 @@ import org.openide.util.NbBundle;
 /**
  * Connects to a database.
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 public class ConnectAction extends AbstractAction {
     

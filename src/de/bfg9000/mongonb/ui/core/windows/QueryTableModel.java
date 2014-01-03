@@ -13,7 +13,7 @@ import lombok.Getter;
  * The {@code TableModel} of the result table. 
  * 
  * @see http://www.jidesoft.com/products/JIDE_Grids_Developer_Guide.pdf
- * @author wernert
+ * @author thomaswerner35
  */
 class QueryTableModel extends AbstractTableModel implements HierarchicalTableModel {
     

@@ -11,7 +11,7 @@ import org.openide.util.NbBundle;
 /**
  * This Node is the base node of the plugin. It is registered as a root entry of the Services tab.
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 @ServicesTabNodeRegistration(
         displayName=MongoServiceNode.NAME, 

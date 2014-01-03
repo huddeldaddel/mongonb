@@ -12,7 +12,7 @@ import javax.swing.JScrollPane;
 /**
  * Taken from Jidesoft examples.
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 public class FitScrollPane extends JScrollPane implements ComponentListener {
         

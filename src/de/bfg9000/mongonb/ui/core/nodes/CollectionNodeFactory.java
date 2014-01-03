@@ -9,7 +9,7 @@ import org.openide.nodes.Node;
 /**
  * Creates {@code Node}s for each {@code Collection} registered at a {@code Database}.
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 class CollectionNodeFactory extends ChildFactory<Collection> {
 

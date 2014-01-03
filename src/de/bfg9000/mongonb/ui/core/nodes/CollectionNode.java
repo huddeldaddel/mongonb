@@ -9,7 +9,7 @@ import org.openide.nodes.Children;
 /**
  * Displays a {@code Collection} in the Services window.
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 class CollectionNode extends AbstractNode {
     

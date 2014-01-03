@@ -8,7 +8,7 @@ import org.openide.nodes.Children;
 /**
  * Displays a {@code Database} in the Services window.
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 class DatabaseNode extends AbstractNode {
     

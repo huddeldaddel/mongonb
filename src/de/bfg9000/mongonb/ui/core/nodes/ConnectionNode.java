@@ -14,7 +14,7 @@ import org.openide.nodes.Children;
 /**
  * Displays a {@code Connection} in the Services window.
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 class ConnectionNode extends AbstractNode implements PropertyChangeListener {
     

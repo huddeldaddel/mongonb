@@ -10,7 +10,7 @@ import lombok.Getter;
 /**
  * POJO that holds the data of a database managed by a MongoDB server.
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 @AllArgsConstructor
 public class Database {

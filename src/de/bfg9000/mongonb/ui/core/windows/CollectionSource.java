@@ -7,7 +7,7 @@ import java.util.Iterator;
 /**
  * A {@code Source} that returns a fixed collection of {@code DBObject}s.
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 class CollectionSource extends Source {
         

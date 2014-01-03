@@ -11,7 +11,7 @@ import org.openide.util.NbBundle;
  * DBObject that have other DBObjects as value.
  * 
  * @see http://www.jidesoft.com/products/JIDE_Grids_Developer_Guide.pdf
- * @author wernert
+ * @author thomaswerner35
  */
 @AllArgsConstructor
 class PropertyObjectListTableModel extends AbstractTableModel implements HierarchicalTableModel {

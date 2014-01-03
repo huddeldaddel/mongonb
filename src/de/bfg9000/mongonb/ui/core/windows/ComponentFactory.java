@@ -11,7 +11,7 @@ import java.awt.Component;
  * Returns the objects that will be used on the hierarchical table.
  * 
  * @see http://www.jidesoft.com/products/JIDE_Grids_Developer_Guide.pdf
- * @author wernert
+ * @author thomaswerner35
  */
 class ComponentFactory implements HierarchicalTableComponentFactory {
 

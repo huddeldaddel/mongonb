@@ -5,7 +5,7 @@ import com.mongodb.DBObject;
 /**
  * A {@code Source} that returns no content.
  * 
- * @author wernert
+ * @author thomaswerner35
  */
 class EmptySource extends Source {
         

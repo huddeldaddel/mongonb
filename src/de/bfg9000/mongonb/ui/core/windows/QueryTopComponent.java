@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 import javax.swing.SwingWorker;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
 import javax.swing.text.Document;
 import lombok.AllArgsConstructor;
@@ -20,12 +22,12 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.text.CloneableEditorSupport;
-import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
 import org.openide.windows.Mode;
+import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
 /**
@@ -34,27 +36,40 @@ import org.openide.windows.WindowManager;
 @ConvertAsProperties(dtd = "-//de.bfg9000.mongonb.ui.core.windows//Query//EN", autostore = false)
 @TopComponent.Description(
         preferredID = "QueryTopComponent",
-      //iconBase="SET/PATH/TO/ICON/HERE", 
+      //iconBase="SET/PATH/TO/ICON/HERE",
         persistenceType = TopComponent.PERSISTENCE_NEVER)
 @TopComponent.Registration(mode = "editor", openAtStartup = false)
-@Messages({    
+@Messages({
     "CTL_QueryTopComponent=Query Window",
     "HINT_QueryTopComponent=This is a Query window"
 })
 public final class QueryTopComponent extends TopComponent {
 
     private static final ResourceBundle bundle = NbBundle.getBundle(QueryTopComponent.class);
-    
+
     @Setter private Collection collection;
     private DataCache dataCache;
-    
+
     public QueryTopComponent() {
-        initComponents();                
-        
+        initComponents();
+
         setName(Bundle.CTL_QueryTopComponent());
         setToolTipText(Bundle.HINT_QueryTopComponent());
-        
+
         tblData.setComponentFactory(new ComponentFactory());
+        tblData.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if(!e.getValueIsAdjusting())
+                    tblData.setComponentPopupMenu(new TableContextMenuFactory().buildContextMenu(getSelectedItem()));
+            }
+            private DBObject getSelectedItem() {
+                if(-1 == tblData.getSelectedRow())
+                    return null;
+
+                return dataCache.getContent().get(tblData.getSelectedRow());
+            }
+        });
     }
 
     /**
@@ -282,8 +297,8 @@ public final class QueryTopComponent extends TopComponent {
     private void btnReloadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReloadActionPerformed
         if((dataCache.source instanceof EmptySource) || (dataCache.source instanceof CollectionSource))
             return;
-        
-        new QueryWorker(dataCache.getQuery()).execute();        
+
+        new QueryWorker(dataCache.getQuery()).execute();
     }//GEN-LAST:event_btnReloadActionPerformed
 
     private void btnAddDocumentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddDocumentActionPerformed
@@ -320,11 +335,11 @@ public final class QueryTopComponent extends TopComponent {
     // End of variables declaration//GEN-END:variables
 
     void writeProperties(java.util.Properties p) {
-        p.setProperty("version", "1.0");        
+        p.setProperty("version", "1.0");
     }
 
     void readProperties(java.util.Properties p) {
-        // String version = p.getProperty("version");        
+        // String version = p.getProperty("version");
     }
 
     @Override
@@ -333,7 +348,7 @@ public final class QueryTopComponent extends TopComponent {
         initEditor();
         initConnectionLabel();
     }
-    
+
     private void initConnectionLabel() {
         final StringBuilder builder = new StringBuilder();
         builder.append(collection.getConnection().getHost())
@@ -345,12 +360,12 @@ public final class QueryTopComponent extends TopComponent {
                .append(collection.getName());
         lblConnection.setText(builder.toString());
     }
-    
+
     private void initWindowName() {
-        final String nameTemplate = bundle.getString("QueryTopComponent.name");        
+        final String nameTemplate = bundle.getString("QueryTopComponent.name");
         final Mode editorMode = WindowManager.getDefault().findMode("editor");
         final TopComponent[] openedTopComponents = WindowManager.getDefault().getOpenedTopComponents(editorMode);
-        
+
         String name = "";
         int counter = 0;
         boolean found = true;
@@ -363,32 +378,32 @@ public final class QueryTopComponent extends TopComponent {
                     break;
                 }
         }
-        
+
         setName(name);
     }
-    
-    private void initEditor() {        
-        epEditor.setEditorKit(CloneableEditorSupport.getEditorKit("text/x-javascript"));        
-        try {            
-            final FileObject fob = FileUtil.createMemoryFileSystem().getRoot().createData("tmp", "js");            
+
+    private void initEditor() {
+        epEditor.setEditorKit(CloneableEditorSupport.getEditorKit("text/x-javascript"));
+        try {
+            final FileObject fob = FileUtil.createMemoryFileSystem().getRoot().createData("tmp", "js");
             epEditor.getDocument().putProperty(Document.StreamDescriptionProperty, DataObject.find(fob));
-            DialogBinding.bindComponentToFile(fob, 0, 0, epEditor);            
+            DialogBinding.bindComponentToFile(fob, 0, 0, epEditor);
             epEditor.setText("{\n\t\n}");
-        } catch(IOException ex) {            
+        } catch(IOException ex) {
         }
     }
-    
-    private void updateTable() {       
+
+    private void updateTable() {
         tblData.setModel(new QueryTableModel(dataCache));
         for(int row=0; row<dataCache.getContent().size(); row++)
-            tblData.refreshRow(row);        
+            tblData.refreshRow(row);
         if(0 < tblData.getColumnCount()) {
-            final TableColumn column = tblData.getColumnModel().getColumn(0);            
+            final TableColumn column = tblData.getColumnModel().getColumn(0);
             column.setMaxWidth(60);
             column.setMinWidth(60);
             column.setPreferredWidth(60);
         }
-        
+
         btnReload.setEnabled(true);
         btnGoFirst.setEnabled(dataCache.canMoveReverse());
         btnGoPrevious.setEnabled(dataCache.canMoveReverse());
@@ -396,7 +411,7 @@ public final class QueryTopComponent extends TopComponent {
         btnGoLast.setEnabled(dataCache.canMoveForward());
         lblTotalRows.setText(Integer.toString(dataCache.getCount()));
     }
-    
+
     /**
      * Executes a query asynchronously, then updates the UI.
      */
@@ -405,29 +420,29 @@ public final class QueryTopComponent extends TopComponent {
         private final String query;
         private long durationInMillis = 0;
         private String errorMessage = null;
-        
+
         public QueryWorker(String query) {
             this.query = query;
         }
-        
+
         @Override
         protected DBCursor doInBackground() throws Exception {
             final long start = System.currentTimeMillis();
             try {
-                return collection.query(query);                
+                return collection.query(query);
             } catch(Exception ex) {
                 errorMessage = ex.getMessage();
                 return null;
             } finally {
                 final long end =  System.currentTimeMillis();
                 durationInMillis = end -start;
-            }            
+            }
         }
-        
+
         @Override
         protected void done() {
             IOProvider.getDefault().getIO(getName(), false).closeInputOutput();
-            final InputOutput io = IOProvider.getDefault().getIO(getName(), true);            
+            final InputOutput io = IOProvider.getDefault().getIO(getName(), true);
             try {
                 final String duration = NumberFormat.getNumberInstance().format(durationInMillis / 1000.0);
                 final DBCursor cursor = get();
@@ -437,19 +452,19 @@ public final class QueryTopComponent extends TopComponent {
                     if(null != errorMessage)
                         io.getErr().println("\n" +errorMessage.replaceAll("Source: java.io.StringReader@(.+?); ", ""));
                     dataCache = DataCache.EMPTY;
-                } else {                    
+                } else {
                     dataCache = new DataCache(cursor, Integer.parseInt(txtPageSize.getText()), query);
                     String template = bundle.getString("QueryTopComponent.querySuccess");
                     io.getOut().println(MessageFormat.format(template, duration));
-                    if(1 == dataCache.getCount()) {                        
+                    if(1 == dataCache.getCount()) {
                         io.getOut().println(bundle.getString("QueryTopComponent.queryInfoSingle"));
                     } else {
                         template = bundle.getString("QueryTopComponent.queryInfo");
                         io.getOut().println(MessageFormat.format(template, dataCache.getCount()));
-                    }                    
+                    }
                 }
                 updateTable();
-            } catch(Exception ignored) {                
+            } catch(Exception ignored) {
             } finally {
                 io.select();
                 io.getErr().close();
@@ -457,9 +472,9 @@ public final class QueryTopComponent extends TopComponent {
             }
             btnReload.setEnabled(true);
         }
-        
+
     }
-    
+
     /**
      * Inserts a new document asynchronously, then updates the UI.
      */
@@ -468,11 +483,11 @@ public final class QueryTopComponent extends TopComponent {
         private final String query;
         private long durationInMillis = 0;
         private String errorMessage = null;
-        
+
         public InsertWorker(String query) {
             this.query = query;
         }
-        
+
         @Override
         protected DBObject doInBackground() throws Exception {
             final long start = System.currentTimeMillis();
@@ -484,13 +499,13 @@ public final class QueryTopComponent extends TopComponent {
             } finally {
                 final long end =  System.currentTimeMillis();
                 durationInMillis = end -start;
-            }            
+            }
         }
-        
+
         @Override
         protected void done() {
             IOProvider.getDefault().getIO(getName(), false).closeInputOutput();
-            final InputOutput io = IOProvider.getDefault().getIO(getName(), true);            
+            final InputOutput io = IOProvider.getDefault().getIO(getName(), true);
             try {
                 final String duration = NumberFormat.getNumberInstance().format(durationInMillis / 1000.0);
                 final DBObject dbObject = get();
@@ -500,15 +515,15 @@ public final class QueryTopComponent extends TopComponent {
                     if(null != errorMessage)
                         io.getErr().println("\n" +errorMessage.replaceAll("Source: java.io.StringReader@(.+?); ", ""));
                     dataCache = DataCache.EMPTY;
-                } else {                    
+                } else {
                     final Source source = new CollectionSource(Collections.singletonList(dbObject));
-                    dataCache = new DataCache(source, Integer.parseInt(txtPageSize.getText()));                    
+                    dataCache = new DataCache(source, Integer.parseInt(txtPageSize.getText()));
                     String template = bundle.getString("QueryTopComponent.insertSuccess");
-                    io.getOut().println(MessageFormat.format(template, duration));                    
-                    io.getOut().println(bundle.getString("QueryTopComponent.insertInfoSingle"));                    
+                    io.getOut().println(MessageFormat.format(template, duration));
+                    io.getOut().println(bundle.getString("QueryTopComponent.insertInfoSingle"));
                 }
                 updateTable();
-            } catch(Exception ignored) {                
+            } catch(Exception ignored) {
             } finally {
                 io.select();
                 io.getErr().close();
@@ -516,9 +531,9 @@ public final class QueryTopComponent extends TopComponent {
             }
             btnReload.setEnabled(false);
         }
-        
+
     }
-    
+
     /**
      * Executes a query asynchronously, then updates the UI.
      */
@@ -527,15 +542,15 @@ public final class QueryTopComponent extends TopComponent {
         private final String query;
         private long durationInMillis = 0;
         private String errorMessage = null;
-        
+
         public RemoveWorker(String query) {
             this.query = query;
         }
-        
+
         @Override
         protected List<DBObject> doInBackground() throws Exception {
             final long start = System.currentTimeMillis();
-            try {                
+            try {
                 return collection.remove(query);
             } catch(Exception ex) {
                 errorMessage = ex.getMessage();
@@ -543,13 +558,13 @@ public final class QueryTopComponent extends TopComponent {
             } finally {
                 final long end =  System.currentTimeMillis();
                 durationInMillis = end -start;
-            }            
+            }
         }
-        
+
         @Override
         protected void done() {
             IOProvider.getDefault().getIO(getName(), false).closeInputOutput();
-            final InputOutput io = IOProvider.getDefault().getIO(getName(), true);            
+            final InputOutput io = IOProvider.getDefault().getIO(getName(), true);
             try {
                 final String duration = NumberFormat.getNumberInstance().format(durationInMillis / 1000.0);
                 final List<DBObject> dbObjects = get();
@@ -559,20 +574,20 @@ public final class QueryTopComponent extends TopComponent {
                     if(null != errorMessage)
                         io.getErr().println("\n" +errorMessage.replaceAll("Source: java.io.StringReader@(.+?); ", ""));
                     dataCache = DataCache.EMPTY;
-                } else {                    
+                } else {
                     final Source source = new CollectionSource(dbObjects);
-                    dataCache = new DataCache(source, Integer.parseInt(txtPageSize.getText()));                    
+                    dataCache = new DataCache(source, Integer.parseInt(txtPageSize.getText()));
                     String template = bundle.getString("QueryTopComponent.removeSuccess");
                     io.getOut().println(MessageFormat.format(template, duration));
-                    if(1 == dbObjects.size()) {                        
+                    if(1 == dbObjects.size()) {
                         io.getOut().println(bundle.getString("QueryTopComponent.removeInfoSingle"));
                     } else {
                         template = bundle.getString("QueryTopComponent.removeInfo");
                         io.getOut().println(MessageFormat.format(template, dbObjects.size()));
-                    }                    
+                    }
                 }
                 updateTable();
-            } catch(Exception ignored) {                
+            } catch(Exception ignored) {
             } finally {
                 io.select();
                 io.getErr().close();
@@ -580,9 +595,9 @@ public final class QueryTopComponent extends TopComponent {
             }
             btnReload.setEnabled(false);
         }
-        
+
     }
-    
+
     /**
      * Loads missing data asynchronously, then updates the UI.
      */
@@ -590,18 +605,18 @@ public final class QueryTopComponent extends TopComponent {
     private final class NavigationWorker extends SwingWorker<Void, Void> {
 
         private final Runnable task;
-        
+
         @Override
         protected Void doInBackground() throws Exception {
             task.run();
             return null;
         }
-        
+
         @Override
         protected void done() {
             updateTable();
         }
-        
+
     }
-    
+
 }

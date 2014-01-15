@@ -7,9 +7,9 @@ import lombok.AllArgsConstructor;
 import org.openide.util.NbBundle;
 
 /**
- * This TableModel is used in the hierarchical table that displays the query results. It shows all properties of a 
+ * This TableModel is used in the hierarchical table that displays the query results. It shows all properties of a
  * DBObject that have other DBObjects as value.
- * 
+ *
  * @see http://www.jidesoft.com/products/JIDE_Grids_Developer_Guide.pdf
  * @author thomaswerner35
  */
@@ -17,9 +17,9 @@ import org.openide.util.NbBundle;
 class PropertyObjectListTableModel extends AbstractTableModel implements HierarchicalTableModel {
 
     private static final ResourceBundle bundle = NbBundle.getBundle(PropertyObjectListTableModel.class);
-    
+
     private final PropertyObjectList propertyObjectList;
-    
+
     @Override
     public int getRowCount() {
         return propertyObjectList.size();
@@ -29,7 +29,7 @@ class PropertyObjectListTableModel extends AbstractTableModel implements Hierarc
     public int getColumnCount() {
         return 2;
     }
-    
+
     @Override
     public String getColumnName(int columnIndex) {
         return bundle.getString("PropertyObjectListTableModel.col" +Integer.toString(columnIndex));
@@ -60,5 +60,5 @@ class PropertyObjectListTableModel extends AbstractTableModel implements Hierarc
     public boolean isExpandable(int i) {
         return true;
     }
-    
+
 }

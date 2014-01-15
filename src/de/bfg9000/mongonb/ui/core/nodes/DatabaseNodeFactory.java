@@ -10,27 +10,27 @@ import org.openide.nodes.Node;
 
 /**
  * Creates {@code Node}s for each {@code Database} registered at the {@code Connection}.
- * 
+ *
  * @author thomaswerner35
  */
 class DatabaseNodeFactory extends ChildFactory<Database> implements PropertyChangeListener {
 
     private final Connection connection;
-    
+
     public DatabaseNodeFactory(Connection connection) {
         this.connection = connection;
         connection.addPropertyChangeListener(this);
     }
-    
+
     @Override
     protected boolean createKeys(List<Database> toPopulate) {
         toPopulate.addAll(connection.getDatabases());
         return true;
     }
-    
+
     @Override
     protected Node createNodeForKey(Database key) {
-        return new DatabaseNode(key);        
+        return new DatabaseNode(key);
     }
 
     @Override
@@ -38,5 +38,5 @@ class DatabaseNodeFactory extends ChildFactory<Database> implements PropertyChan
         if(evt.getPropertyName().equals(Connection.PROPERTY_CONNECTED))
             refresh(false);
     }
-    
+
 }

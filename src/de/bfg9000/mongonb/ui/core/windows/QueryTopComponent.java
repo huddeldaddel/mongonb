@@ -394,7 +394,7 @@ public final class QueryTopComponent extends TopComponent {
     }
 
     private void updateTable() {
-        tblData.setModel(new QueryTableModel(dataCache));
+        tblData.setModel(new ResultTableModel(dataCache));
         for(int row=0; row<dataCache.getContent().size(); row++)
             tblData.refreshRow(row);
         if(0 < tblData.getColumnCount()) {

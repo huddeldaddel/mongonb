@@ -171,6 +171,7 @@ public class Connection {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public java.util.Collection<Database> getDatabases() {
         if(!isConnected())
             return Collections.EMPTY_LIST;

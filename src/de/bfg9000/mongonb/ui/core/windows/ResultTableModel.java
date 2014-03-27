@@ -17,7 +17,7 @@ import lombok.Getter;
  * @see http://www.jidesoft.com/products/JIDE_Grids_Developer_Guide.pdf
  * @author thomaswerner35
  */
-class QueryTableModel extends AbstractTableModel implements HierarchicalTableModel {
+class ResultTableModel extends AbstractTableModel implements HierarchicalTableModel {
 
     private final List<DBObject> data;
     private final List<String> columns;
@@ -25,7 +25,7 @@ class QueryTableModel extends AbstractTableModel implements HierarchicalTableMod
     @Getter private final int rowCount;
     @Getter private final int columnCount;
 
-    public QueryTableModel(DataCache dataCache) {
+    public ResultTableModel(DataCache dataCache) {
         data = dataCache.getContent();
         columns = prepareColumns();
         offset = dataCache.getWindowPosition();

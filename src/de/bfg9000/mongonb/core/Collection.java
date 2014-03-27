@@ -50,4 +50,8 @@ public class Collection {
         return result;
     }
 
+    public void drop() {
+        connection.getMongoClient().getDB(database).getCollection(name).drop();
+    }
+
 }

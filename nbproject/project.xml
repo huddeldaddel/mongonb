@@ -142,32 +142,36 @@
             </test-dependencies>
             <public-packages/>
             <class-path-extension>
-                <runtime-relative-path>ext/jackson-annotations-2.2.0.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/jackson-annotations-2.2.0.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jide-common.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/jide-common.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
                 <runtime-relative-path>ext/jackson-core-2.2.0.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/jackson-core-2.2.0.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jide-grids.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/jide-grids.jar</binary-origin>
-            </class-path-extension>
-            <class-path-extension>
-                <runtime-relative-path>ext/jackson-databind-2.2.0.jar</runtime-relative-path>
-                <binary-origin>release/modules/ext/jackson-databind-2.2.0.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/mongo-java-driver-2.11.3.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/mongo-java-driver-2.11.3.jar</binary-origin>
             </class-path-extension>
             <class-path-extension>
+                <runtime-relative-path>ext/jackson-databind-2.2.0.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jackson-databind-2.2.0.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
                 <runtime-relative-path>ext/lombok.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/lombok.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jide-common.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jide-common.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jide-grids.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jide-grids.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jackson-annotations-2.2.0.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/jackson-annotations-2.2.0.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/commons-lang3-3.3.1.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/commons-lang3-3.3.1.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>

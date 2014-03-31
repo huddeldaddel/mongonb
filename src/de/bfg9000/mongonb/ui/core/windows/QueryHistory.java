@@ -36,7 +36,7 @@ class QueryHistory {
      * @param item The item to be added
      */
     public void add(QueryHistoryItem item) {
-        if(items.isEmpty() || (!items.get(0).toString().equals(item.toString()))) {
+        if(items.isEmpty() || (!items.get(0).equals(item))) {
             final List<QueryHistoryItem> old = Collections.unmodifiableList(new ArrayList<QueryHistoryItem>(items));
             items.add(0, item);
             if(CAPACITY < items.size())

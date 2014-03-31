@@ -11,6 +11,8 @@ import java.util.ResourceBundle;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.text.Document;
 import lombok.Getter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.netbeans.api.editor.DialogBinding;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.filesystems.FileObject;
@@ -71,7 +73,7 @@ public final class QueryTopComponent extends TopComponent {
         btnRunQuery = new javax.swing.JButton();
         btnAddDocument = new javax.swing.JButton();
         btnRemoveDocument = new javax.swing.JButton();
-        cmbHistory = new javax.swing.JComboBox<String>();
+        cmbHistory = new javax.swing.JComboBox<QueryHistoryItem>();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -175,7 +177,7 @@ public final class QueryTopComponent extends TopComponent {
     private javax.swing.JButton btnAddDocument;
     private javax.swing.JButton btnRemoveDocument;
     private javax.swing.JButton btnRunQuery;
-    private javax.swing.JComboBox<String> cmbHistory;
+    private javax.swing.JComboBox<QueryHistoryItem> cmbHistory;
     private javax.swing.JEditorPane epEditor;
     private javax.swing.JLabel lblConnection;
     private javax.swing.JLabel lblConnectionInfo;
@@ -264,18 +266,32 @@ public final class QueryTopComponent extends TopComponent {
         }
 
         @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof QueryHistoryItem))
+                return false;
+
+            final QueryHistoryItem other  = (QueryHistoryItem) o;
+            return new EqualsBuilder().append(query, other.query).isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder().append(query).toHashCode();
+        }
+
+        @Override
         public String toString() {
             final String temp = query.replaceAll("\\s", " ").replaceAll("\\s+", " ");
             return temp.length() > MAX_LENGTH ? temp.substring(0, MAX_LENGTH) +"..." : temp;
         }
-
     }
 
     /**
      * The model of the history combobox. It displays the values of the QueryHistory and updates whenever there is a new
      * history entry .
      */
-    private static final class QueryHistoryModel extends DefaultComboBoxModel<String> implements PropertyChangeListener{
+    private static final class QueryHistoryModel extends DefaultComboBoxModel<QueryHistoryItem>
+                                                 implements PropertyChangeListener{
 
         private final QueryHistory qHistory;
 
@@ -290,8 +306,8 @@ public final class QueryTopComponent extends TopComponent {
         }
 
         @Override
-        public String getElementAt(int index) {
-            return qHistory.getItems().get(index).toString();
+        public QueryHistoryItem getElementAt(int index) {
+            return (QueryHistoryItem) qHistory.getItems().get(index);
         }
 
         @Override

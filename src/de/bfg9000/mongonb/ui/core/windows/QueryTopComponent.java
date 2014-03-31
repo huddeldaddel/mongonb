@@ -1,21 +1,11 @@
 package de.bfg9000.mongonb.ui.core.windows;
 
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 import de.bfg9000.mongonb.core.Collection;
+import java.awt.BorderLayout;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.text.NumberFormat;
-import java.util.Collections;
-import java.util.List;
 import java.util.ResourceBundle;
-import javax.swing.SwingWorker;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.TableColumn;
 import javax.swing.text.Document;
-import lombok.AllArgsConstructor;
-import lombok.Setter;
 import org.netbeans.api.editor.DialogBinding;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.filesystems.FileObject;
@@ -24,8 +14,6 @@ import org.openide.loaders.DataObject;
 import org.openide.text.CloneableEditorSupport;
 import org.openide.util.NbBundle;
 import org.openide.util.NbBundle.Messages;
-import org.openide.windows.IOProvider;
-import org.openide.windows.InputOutput;
 import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
@@ -47,8 +35,8 @@ public final class QueryTopComponent extends TopComponent {
 
     private static final ResourceBundle bundle = NbBundle.getBundle(QueryTopComponent.class);
 
-    @Setter private Collection collection;
-    private DataCache dataCache;
+    private Collection collection;
+    private final ResultTable resultTable;
 
     public QueryTopComponent() {
         initComponents();
@@ -56,20 +44,7 @@ public final class QueryTopComponent extends TopComponent {
         setName(Bundle.CTL_QueryTopComponent());
         setToolTipText(Bundle.HINT_QueryTopComponent());
 
-        tblData.setComponentFactory(new ComponentFactory());
-        tblData.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                if(!e.getValueIsAdjusting())
-                    tblData.setComponentPopupMenu(new TableContextMenuFactory().buildContextMenu(getSelectedItem()));
-            }
-            private DBObject getSelectedItem() {
-                if(-1 == tblData.getSelectedRow())
-                    return null;
-
-                return dataCache.getContent().get(tblData.getSelectedRow());
-            }
-        });
+        pnlResultArea.add(resultTable = new ResultTable(), BorderLayout.CENTER);
     }
 
     /**
@@ -81,18 +56,6 @@ public final class QueryTopComponent extends TopComponent {
 
         spltSplitter = new javax.swing.JSplitPane();
         pnlResultArea = new javax.swing.JPanel();
-        tbDataNavigation = new javax.swing.JToolBar();
-        btnReload = new javax.swing.JButton();
-        btnGoFirst = new javax.swing.JButton();
-        btnGoPrevious = new javax.swing.JButton();
-        btnGoNext = new javax.swing.JButton();
-        btnGoLast = new javax.swing.JButton();
-        lblPageSize = new javax.swing.JLabel();
-        txtPageSize = new javax.swing.JTextField();
-        lblTotalRowsInfo = new javax.swing.JLabel();
-        lblTotalRows = new javax.swing.JLabel();
-        scrData = new javax.swing.JScrollPane();
-        tblData = new com.jidesoft.grid.HierarchicalTable();
         scrEditor = new javax.swing.JScrollPane();
         epEditor = new javax.swing.JEditorPane();
         tbToolBar = new javax.swing.JToolBar();
@@ -108,96 +71,6 @@ public final class QueryTopComponent extends TopComponent {
         spltSplitter.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
 
         pnlResultArea.setLayout(new java.awt.BorderLayout());
-
-        tbDataNavigation.setRollover(true);
-
-        btnReload.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/view-refresh.png"))); // NOI18N
-        btnReload.setToolTipText(org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.btnReload.toolTipText")); // NOI18N
-        btnReload.setEnabled(false);
-        btnReload.setFocusable(false);
-        btnReload.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btnReload.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        btnReload.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnReloadActionPerformed(evt);
-            }
-        });
-        tbDataNavigation.add(btnReload);
-
-        btnGoFirst.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/go-first.png"))); // NOI18N
-        btnGoFirst.setToolTipText(org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.btnGoFirst.toolTipText")); // NOI18N
-        btnGoFirst.setEnabled(false);
-        btnGoFirst.setFocusable(false);
-        btnGoFirst.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btnGoFirst.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        btnGoFirst.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnGoFirstActionPerformed(evt);
-            }
-        });
-        tbDataNavigation.add(btnGoFirst);
-
-        btnGoPrevious.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/go-previous.png"))); // NOI18N
-        btnGoPrevious.setToolTipText(org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.btnGoPrevious.toolTipText")); // NOI18N
-        btnGoPrevious.setEnabled(false);
-        btnGoPrevious.setFocusable(false);
-        btnGoPrevious.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btnGoPrevious.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        btnGoPrevious.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnGoPreviousActionPerformed(evt);
-            }
-        });
-        tbDataNavigation.add(btnGoPrevious);
-
-        btnGoNext.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/go-next.png"))); // NOI18N
-        btnGoNext.setToolTipText(org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.btnGoNext.toolTipText")); // NOI18N
-        btnGoNext.setEnabled(false);
-        btnGoNext.setFocusable(false);
-        btnGoNext.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btnGoNext.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        btnGoNext.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnGoNextActionPerformed(evt);
-            }
-        });
-        tbDataNavigation.add(btnGoNext);
-
-        btnGoLast.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/bfg9000/mongonb/ui/core/images/go-last.png"))); // NOI18N
-        btnGoLast.setToolTipText(org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.btnGoLast.toolTipText")); // NOI18N
-        btnGoLast.setEnabled(false);
-        btnGoLast.setFocusable(false);
-        btnGoLast.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btnGoLast.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        btnGoLast.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnGoLastActionPerformed(evt);
-            }
-        });
-        tbDataNavigation.add(btnGoLast);
-
-        lblPageSize.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        org.openide.awt.Mnemonics.setLocalizedText(lblPageSize, org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.lblPageSize.text")); // NOI18N
-        lblPageSize.setPreferredSize(new java.awt.Dimension(65, 16));
-        tbDataNavigation.add(lblPageSize);
-
-        txtPageSize.setText(org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.txtPageSize.text")); // NOI18N
-        txtPageSize.setMaximumSize(new java.awt.Dimension(30, 28));
-        txtPageSize.setPreferredSize(new java.awt.Dimension(30, 28));
-        tbDataNavigation.add(txtPageSize);
-
-        lblTotalRowsInfo.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        org.openide.awt.Mnemonics.setLocalizedText(lblTotalRowsInfo, org.openide.util.NbBundle.getMessage(QueryTopComponent.class, "QueryTopComponent.lblTotalRowsInfo.text")); // NOI18N
-        lblTotalRowsInfo.setPreferredSize(new java.awt.Dimension(80, 16));
-        tbDataNavigation.add(lblTotalRowsInfo);
-        tbDataNavigation.add(lblTotalRows);
-
-        pnlResultArea.add(tbDataNavigation, java.awt.BorderLayout.NORTH);
-
-        scrData.setViewportView(tblData);
-
-        pnlResultArea.add(scrData, java.awt.BorderLayout.CENTER);
-
         spltSplitter.setRightComponent(pnlResultArea);
 
         scrEditor.setViewportView(epEditor);
@@ -255,83 +128,34 @@ public final class QueryTopComponent extends TopComponent {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnRunQueryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRunQueryActionPerformed
-        new QueryWorker(epEditor.getText()).execute();
+        final QueryWorker w = new QueryWorker(collection, epEditor.getText(), getName(), resultTable.getPageSize());
+        w.setResultTable(resultTable);
+        w.execute();
     }//GEN-LAST:event_btnRunQueryActionPerformed
 
-    private void btnGoFirstActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoFirstActionPerformed
-        new NavigationWorker(new Runnable() {
-            @Override
-            public void run() {
-                dataCache.moveFirst();
-            }
-        }).execute();
-    }//GEN-LAST:event_btnGoFirstActionPerformed
-
-    private void btnGoPreviousActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoPreviousActionPerformed
-        new NavigationWorker(new Runnable() {
-            @Override
-            public void run() {
-                dataCache.moveReverse();
-            }
-        }).execute();
-    }//GEN-LAST:event_btnGoPreviousActionPerformed
-
-    private void btnGoNextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoNextActionPerformed
-        new NavigationWorker(new Runnable() {
-            @Override
-            public void run() {
-                dataCache.moveForward();
-            }
-        }).execute();
-    }//GEN-LAST:event_btnGoNextActionPerformed
-
-    private void btnGoLastActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGoLastActionPerformed
-        new NavigationWorker(new Runnable() {
-            @Override
-            public void run() {
-                dataCache.moveLast();
-            }
-        }).execute();
-    }//GEN-LAST:event_btnGoLastActionPerformed
-
-    private void btnReloadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReloadActionPerformed
-        if((dataCache.source instanceof EmptySource) || (dataCache.source instanceof CollectionSource))
-            return;
-
-        new QueryWorker(dataCache.getQuery()).execute();
-    }//GEN-LAST:event_btnReloadActionPerformed
-
     private void btnAddDocumentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddDocumentActionPerformed
-        new InsertWorker(epEditor.getText()).execute();
+        final InsertWorker w = new InsertWorker(collection, epEditor.getText(), getName(), resultTable.getPageSize());
+        w.setResultTable(resultTable);
+        w.execute();
     }//GEN-LAST:event_btnAddDocumentActionPerformed
 
     private void btnRemoveDocumentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveDocumentActionPerformed
-        new RemoveWorker(epEditor.getText()).execute();
+        final RemoveWorker w = new RemoveWorker(collection, epEditor.getText(), getName(), resultTable.getPageSize());
+        w.setResultTable(resultTable);
+        w.execute();
     }//GEN-LAST:event_btnRemoveDocumentActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddDocument;
-    private javax.swing.JButton btnGoFirst;
-    private javax.swing.JButton btnGoLast;
-    private javax.swing.JButton btnGoNext;
-    private javax.swing.JButton btnGoPrevious;
-    private javax.swing.JButton btnReload;
     private javax.swing.JButton btnRemoveDocument;
     private javax.swing.JButton btnRunQuery;
     private javax.swing.JEditorPane epEditor;
     private javax.swing.JLabel lblConnection;
     private javax.swing.JLabel lblConnectionInfo;
-    private javax.swing.JLabel lblPageSize;
-    private javax.swing.JLabel lblTotalRows;
-    private javax.swing.JLabel lblTotalRowsInfo;
     private javax.swing.JPanel pnlResultArea;
-    private javax.swing.JScrollPane scrData;
     private javax.swing.JScrollPane scrEditor;
     private javax.swing.JSplitPane spltSplitter;
-    private javax.swing.JToolBar tbDataNavigation;
     private javax.swing.JToolBar tbToolBar;
-    private com.jidesoft.grid.HierarchicalTable tblData;
-    private javax.swing.JTextField txtPageSize;
     // End of variables declaration//GEN-END:variables
 
     void writeProperties(java.util.Properties p) {
@@ -340,6 +164,11 @@ public final class QueryTopComponent extends TopComponent {
 
     void readProperties(java.util.Properties p) {
         // String version = p.getProperty("version");
+    }
+
+    public void setCollection(Collection collection) {
+        this.collection = collection;
+        resultTable.setCollection(collection);
     }
 
     @Override
@@ -380,6 +209,7 @@ public final class QueryTopComponent extends TopComponent {
         }
 
         setName(name);
+        resultTable.setName(name);
     }
 
     private void initEditor() {
@@ -391,232 +221,6 @@ public final class QueryTopComponent extends TopComponent {
             epEditor.setText("{\n\t\n}");
         } catch(IOException ex) {
         }
-    }
-
-    private void updateTable() {
-        tblData.setModel(new ResultTableModel(dataCache));
-        for(int row=0; row<dataCache.getContent().size(); row++)
-            tblData.refreshRow(row);
-        if(0 < tblData.getColumnCount()) {
-            final TableColumn column = tblData.getColumnModel().getColumn(0);
-            column.setMaxWidth(60);
-            column.setMinWidth(60);
-            column.setPreferredWidth(60);
-        }
-
-        btnReload.setEnabled(true);
-        btnGoFirst.setEnabled(dataCache.canMoveReverse());
-        btnGoPrevious.setEnabled(dataCache.canMoveReverse());
-        btnGoNext.setEnabled(dataCache.canMoveForward());
-        btnGoLast.setEnabled(dataCache.canMoveForward());
-        lblTotalRows.setText(Integer.toString(dataCache.getCount()));
-    }
-
-    /**
-     * Executes a query asynchronously, then updates the UI.
-     */
-    private final class QueryWorker extends SwingWorker<DBCursor, Void> {
-
-        private final String query;
-        private long durationInMillis = 0;
-        private String errorMessage = null;
-
-        public QueryWorker(String query) {
-            this.query = query;
-        }
-
-        @Override
-        protected DBCursor doInBackground() throws Exception {
-            final long start = System.currentTimeMillis();
-            try {
-                return collection.query(query);
-            } catch(Exception ex) {
-                errorMessage = ex.getMessage();
-                return null;
-            } finally {
-                final long end =  System.currentTimeMillis();
-                durationInMillis = end -start;
-            }
-        }
-
-        @Override
-        protected void done() {
-            IOProvider.getDefault().getIO(getName(), false).closeInputOutput();
-            final InputOutput io = IOProvider.getDefault().getIO(getName(), true);
-            try {
-                final String duration = NumberFormat.getNumberInstance().format(durationInMillis / 1000.0);
-                final DBCursor cursor = get();
-                if(null == cursor) {
-                    final String template = bundle.getString("QueryTopComponent.queryFailure");
-                    io.getOut().println(MessageFormat.format(template, duration));
-                    if(null != errorMessage)
-                        io.getErr().println("\n" +errorMessage.replaceAll("Source: java.io.StringReader@(.+?); ", ""));
-                    dataCache = DataCache.EMPTY;
-                } else {
-                    dataCache = new DataCache(cursor, Integer.parseInt(txtPageSize.getText()), query);
-                    String template = bundle.getString("QueryTopComponent.querySuccess");
-                    io.getOut().println(MessageFormat.format(template, duration));
-                    if(1 == dataCache.getCount()) {
-                        io.getOut().println(bundle.getString("QueryTopComponent.queryInfoSingle"));
-                    } else {
-                        template = bundle.getString("QueryTopComponent.queryInfo");
-                        io.getOut().println(MessageFormat.format(template, dataCache.getCount()));
-                    }
-                }
-                updateTable();
-            } catch(Exception ignored) {
-            } finally {
-                io.select();
-                io.getErr().close();
-                io.getOut().close();
-            }
-            btnReload.setEnabled(true);
-        }
-
-    }
-
-    /**
-     * Inserts a new document asynchronously, then updates the UI.
-     */
-    private final class InsertWorker extends SwingWorker<DBObject, Void> {
-
-        private final String query;
-        private long durationInMillis = 0;
-        private String errorMessage = null;
-
-        public InsertWorker(String query) {
-            this.query = query;
-        }
-
-        @Override
-        protected DBObject doInBackground() throws Exception {
-            final long start = System.currentTimeMillis();
-            try {
-                return collection.add(query);
-            } catch(Exception ex) {
-                errorMessage = ex.getMessage();
-                return null;
-            } finally {
-                final long end =  System.currentTimeMillis();
-                durationInMillis = end -start;
-            }
-        }
-
-        @Override
-        protected void done() {
-            IOProvider.getDefault().getIO(getName(), false).closeInputOutput();
-            final InputOutput io = IOProvider.getDefault().getIO(getName(), true);
-            try {
-                final String duration = NumberFormat.getNumberInstance().format(durationInMillis / 1000.0);
-                final DBObject dbObject = get();
-                if(null == dbObject) {
-                    final String template = bundle.getString("QueryTopComponent.insertFailure");
-                    io.getOut().println(MessageFormat.format(template, duration));
-                    if(null != errorMessage)
-                        io.getErr().println("\n" +errorMessage.replaceAll("Source: java.io.StringReader@(.+?); ", ""));
-                    dataCache = DataCache.EMPTY;
-                } else {
-                    final Source source = new CollectionSource(Collections.singletonList(dbObject));
-                    dataCache = new DataCache(source, Integer.parseInt(txtPageSize.getText()));
-                    String template = bundle.getString("QueryTopComponent.insertSuccess");
-                    io.getOut().println(MessageFormat.format(template, duration));
-                    io.getOut().println(bundle.getString("QueryTopComponent.insertInfoSingle"));
-                }
-                updateTable();
-            } catch(Exception ignored) {
-            } finally {
-                io.select();
-                io.getErr().close();
-                io.getOut().close();
-            }
-            btnReload.setEnabled(false);
-        }
-
-    }
-
-    /**
-     * Executes a query asynchronously, then updates the UI.
-     */
-    private final class RemoveWorker extends SwingWorker<List<DBObject>, Void> {
-
-        private final String query;
-        private long durationInMillis = 0;
-        private String errorMessage = null;
-
-        public RemoveWorker(String query) {
-            this.query = query;
-        }
-
-        @Override
-        protected List<DBObject> doInBackground() throws Exception {
-            final long start = System.currentTimeMillis();
-            try {
-                return collection.remove(query);
-            } catch(Exception ex) {
-                errorMessage = ex.getMessage();
-                return null;
-            } finally {
-                final long end =  System.currentTimeMillis();
-                durationInMillis = end -start;
-            }
-        }
-
-        @Override
-        protected void done() {
-            IOProvider.getDefault().getIO(getName(), false).closeInputOutput();
-            final InputOutput io = IOProvider.getDefault().getIO(getName(), true);
-            try {
-                final String duration = NumberFormat.getNumberInstance().format(durationInMillis / 1000.0);
-                final List<DBObject> dbObjects = get();
-                if(null == dbObjects) {
-                    final String template = bundle.getString("QueryTopComponent.removeFailure");
-                    io.getOut().println(MessageFormat.format(template, duration));
-                    if(null != errorMessage)
-                        io.getErr().println("\n" +errorMessage.replaceAll("Source: java.io.StringReader@(.+?); ", ""));
-                    dataCache = DataCache.EMPTY;
-                } else {
-                    final Source source = new CollectionSource(dbObjects);
-                    dataCache = new DataCache(source, Integer.parseInt(txtPageSize.getText()));
-                    String template = bundle.getString("QueryTopComponent.removeSuccess");
-                    io.getOut().println(MessageFormat.format(template, duration));
-                    if(1 == dbObjects.size()) {
-                        io.getOut().println(bundle.getString("QueryTopComponent.removeInfoSingle"));
-                    } else {
-                        template = bundle.getString("QueryTopComponent.removeInfo");
-                        io.getOut().println(MessageFormat.format(template, dbObjects.size()));
-                    }
-                }
-                updateTable();
-            } catch(Exception ignored) {
-            } finally {
-                io.select();
-                io.getErr().close();
-                io.getOut().close();
-            }
-            btnReload.setEnabled(false);
-        }
-
-    }
-
-    /**
-     * Loads missing data asynchronously, then updates the UI.
-     */
-    @AllArgsConstructor
-    private final class NavigationWorker extends SwingWorker<Void, Void> {
-
-        private final Runnable task;
-
-        @Override
-        protected Void doInBackground() throws Exception {
-            task.run();
-            return null;
-        }
-
-        @Override
-        protected void done() {
-            updateTable();
-        }
-
     }
 
 }

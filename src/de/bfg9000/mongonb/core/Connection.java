@@ -111,7 +111,7 @@ public class Connection {
     }
 
     public boolean connect() {
-        Logger.getLogger("com.mongodb").setLevel(Level.SEVERE); // turn off logging - logging would cause NB error msgs
+        Logger.getLogger("com.mongodb").setLevel(Level.OFF); // turn off logging - logging would cause NB error msgs
         final boolean wasConneced = isConnected();
         if(wasConneced)
             disconnect();

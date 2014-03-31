@@ -3,6 +3,7 @@ package de.bfg9000.mongonb.ui.core.nodes;
 import de.bfg9000.mongonb.core.Collection;
 import de.bfg9000.mongonb.core.Database;
 import de.bfg9000.mongonb.ui.core.actions.DropCollectionAction;
+import de.bfg9000.mongonb.ui.core.actions.OpenMapReduceWindowAction;
 import de.bfg9000.mongonb.ui.core.actions.OpenQueryWindowAction;
 import javax.swing.Action;
 import org.openide.nodes.AbstractNode;
@@ -33,6 +34,7 @@ class CollectionNode extends AbstractNode {
     public Action[] getActions(boolean context) {
         return new Action[] {
             new OpenQueryWindowAction(collection),
+            new OpenMapReduceWindowAction(collection),
             new DropCollectionAction(collection, database)
         };
     }

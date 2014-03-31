@@ -1,9 +1,12 @@
 package de.bfg9000.mongonb.core;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.CommandResult;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import static com.mongodb.MapReduceCommand.OutputType.INLINE;
+import com.mongodb.MapReduceOutput;
 import com.mongodb.WriteResult;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -32,9 +35,16 @@ public class Collection {
         return dbObject;
     }
 
-    public DBCursor query(String query) throws IOException {
+    public QueryResult mapReduce(String mapFunction, String reduceFunction, QueryExecutor executor) {
+        final DBCollection collection = connection.getMongoClient().getDB(database).getCollection(name);
+        final MapReduceOutput out = collection.mapReduce(mapFunction, reduceFunction, null, INLINE, new BasicDBObject());
+        return new QueryResult.MapReduceResult(out, executor);
+    }
+
+    public QueryResult query(String query, QueryExecutor executor) throws IOException {
         final DBObject queryObject = new QueryObjectConverter().convertQueryObject(query);
-        return connection.getMongoClient().getDB(database).getCollection(name).find(queryObject);
+        final DBCursor cursor = connection.getMongoClient().getDB(database).getCollection(name).find(queryObject);
+        return new QueryResult.DBCursorResult(cursor, executor);
     }
 
     public List<DBObject> remove(String query) throws IOException {

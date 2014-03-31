@@ -2,10 +2,15 @@ package de.bfg9000.mongonb.ui.core.windows;
 
 import de.bfg9000.mongonb.core.Collection;
 import java.awt.BorderLayout;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Objects;
 import java.util.ResourceBundle;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.text.Document;
+import lombok.Getter;
 import org.netbeans.api.editor.DialogBinding;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.filesystems.FileObject;
@@ -35,11 +40,13 @@ public final class QueryTopComponent extends TopComponent {
 
     private static final ResourceBundle bundle = NbBundle.getBundle(QueryTopComponent.class);
 
+    private final QueryHistory queryHistory = new QueryHistory();
     private Collection collection;
     private final ResultTable resultTable;
 
     public QueryTopComponent() {
         initComponents();
+        cmbHistory.setModel(new QueryHistoryModel(queryHistory));
 
         setName(Bundle.CTL_QueryTopComponent());
         setToolTipText(Bundle.HINT_QueryTopComponent());
@@ -64,6 +71,7 @@ public final class QueryTopComponent extends TopComponent {
         btnRunQuery = new javax.swing.JButton();
         btnAddDocument = new javax.swing.JButton();
         btnRemoveDocument = new javax.swing.JButton();
+        cmbHistory = new javax.swing.JComboBox<String>();
 
         setLayout(new java.awt.BorderLayout());
 
@@ -124,6 +132,13 @@ public final class QueryTopComponent extends TopComponent {
         });
         tbToolBar.add(btnRemoveDocument);
 
+        cmbHistory.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmbHistoryActionPerformed(evt);
+            }
+        });
+        tbToolBar.add(cmbHistory);
+
         add(tbToolBar, java.awt.BorderLayout.NORTH);
     }// </editor-fold>//GEN-END:initComponents
 
@@ -131,24 +146,36 @@ public final class QueryTopComponent extends TopComponent {
         final QueryWorker w = new QueryWorker(collection, epEditor.getText(), getName(), resultTable.getPageSize());
         w.setResultTable(resultTable);
         w.execute();
+
+        queryHistory.add(new QueryHistoryItem(epEditor.getText()));
     }//GEN-LAST:event_btnRunQueryActionPerformed
 
     private void btnAddDocumentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddDocumentActionPerformed
         final InsertWorker w = new InsertWorker(collection, epEditor.getText(), getName(), resultTable.getPageSize());
         w.setResultTable(resultTable);
         w.execute();
+
+        queryHistory.add(new QueryHistoryItem(epEditor.getText()));
     }//GEN-LAST:event_btnAddDocumentActionPerformed
 
     private void btnRemoveDocumentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveDocumentActionPerformed
         final RemoveWorker w = new RemoveWorker(collection, epEditor.getText(), getName(), resultTable.getPageSize());
         w.setResultTable(resultTable);
         w.execute();
+
+        queryHistory.add(new QueryHistoryItem(epEditor.getText()));
     }//GEN-LAST:event_btnRemoveDocumentActionPerformed
+
+    private void cmbHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbHistoryActionPerformed
+        if(null != cmbHistory.getSelectedItem())
+            epEditor.setText(((QueryHistoryItem)queryHistory.getItems().get(cmbHistory.getSelectedIndex())).getQuery());
+    }//GEN-LAST:event_cmbHistoryActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddDocument;
     private javax.swing.JButton btnRemoveDocument;
     private javax.swing.JButton btnRunQuery;
+    private javax.swing.JComboBox<String> cmbHistory;
     private javax.swing.JEditorPane epEditor;
     private javax.swing.JLabel lblConnection;
     private javax.swing.JLabel lblConnectionInfo;
@@ -221,6 +248,58 @@ public final class QueryTopComponent extends TopComponent {
             epEditor.setText("{\n\t\n}");
         } catch(IOException ex) {
         }
+    }
+
+    /**
+     * A query that is stored in the history.
+     */
+    private static final class QueryHistoryItem implements QueryHistory.QueryHistoryItem {
+
+        private static final int MAX_LENGTH = 100;
+
+        @Getter private final String query;
+
+        public QueryHistoryItem(String query) {
+            this.query = Objects.requireNonNull(query);
+        }
+
+        @Override
+        public String toString() {
+            final String temp = query.replaceAll("\\s", " ").replaceAll("\\s+", " ");
+            return temp.length() > MAX_LENGTH ? temp.substring(0, MAX_LENGTH) +"..." : temp;
+        }
+
+    }
+
+    /**
+     * The model of the history combobox. It displays the values of the QueryHistory and updates whenever there is a new
+     * history entry .
+     */
+    private static final class QueryHistoryModel extends DefaultComboBoxModel<String> implements PropertyChangeListener{
+
+        private final QueryHistory qHistory;
+
+        public QueryHistoryModel(QueryHistory qHistory) {
+            this.qHistory = qHistory;
+            this.qHistory.addPropertyChangeListener(this);
+        }
+
+        @Override
+        public int getSize() {
+            return qHistory.getItems().size();
+        }
+
+        @Override
+        public String getElementAt(int index) {
+            return qHistory.getItems().get(index).toString();
+        }
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            if(QueryHistory.PROPERTY_ITEMS.equals(evt.getPropertyName()))
+                fireContentsChanged(this, 0, getSize() -1);
+        }
+
     }
 
 }

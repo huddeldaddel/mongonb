@@ -2,11 +2,26 @@ package de.bfg9000.mongonb.ui.core.windows;
 
 import de.bfg9000.mongonb.core.Collection;
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Objects;
 import java.util.ResourceBundle;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JEditorPane;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.ListCellRenderer;
+import javax.swing.border.EmptyBorder;
 import javax.swing.text.Document;
+import lombok.Getter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.netbeans.api.editor.DialogBinding;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.filesystems.FileObject;
@@ -36,11 +51,14 @@ public final class MapReduceTopComponent extends TopComponent {
 
     private static final ResourceBundle bundle = NbBundle.getBundle(MapReduceTopComponent.class);
 
+    private final QueryHistory queryHistory = new QueryHistory();
     private Collection collection;
     private final ResultTable resultTable;
 
     public MapReduceTopComponent() {
         initComponents();
+        cmbHistory.setModel(new MapReduceHistoryModel(queryHistory));
+        cmbHistory.setRenderer(new MapReduceHistoryItemRenderer());
 
         setName(Bundle.CTL_MapReduceTopComponent());
         setToolTipText(Bundle.HINT_MapReduceTopComponent());
@@ -59,6 +77,7 @@ public final class MapReduceTopComponent extends TopComponent {
         lblConnectionInfo = new javax.swing.JLabel();
         lblConnection = new javax.swing.JLabel();
         btnRun = new javax.swing.JButton();
+        cmbHistory = new javax.swing.JComboBox();
         spltInputOutput = new javax.swing.JSplitPane();
         pnlResults = new javax.swing.JPanel();
         pnlFunctions = new javax.swing.JPanel();
@@ -92,6 +111,14 @@ public final class MapReduceTopComponent extends TopComponent {
             }
         });
         tbToolBar.add(btnRun);
+
+        cmbHistory.setPreferredSize(new java.awt.Dimension(28, 30));
+        cmbHistory.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cmbHistoryActionPerformed(evt);
+            }
+        });
+        tbToolBar.add(cmbHistory);
 
         add(tbToolBar, java.awt.BorderLayout.NORTH);
 
@@ -144,10 +171,22 @@ public final class MapReduceTopComponent extends TopComponent {
                                   resultTable.getPageSize());
         w.setResultTable(resultTable);
         w.execute();
+
+        queryHistory.add(new MapReduceHistoryItem(epMap.getText(), epReduce.getText()));
     }//GEN-LAST:event_btnRunActionPerformed
+
+    private void cmbHistoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbHistoryActionPerformed
+        if(null != cmbHistory.getSelectedItem()) {
+            final int index = cmbHistory.getSelectedIndex();
+            final MapReduceHistoryItem item = (MapReduceHistoryItem)queryHistory.getItems().get(index);
+            epMap.setText(item.getMapFunction());
+            epReduce.setText(item.getReduceFunction());
+        }
+    }//GEN-LAST:event_cmbHistoryActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnRun;
+    private javax.swing.JComboBox cmbHistory;
     private javax.swing.JEditorPane epMap;
     private javax.swing.JEditorPane epReduce;
     private javax.swing.JLabel lblConnection;
@@ -228,6 +267,119 @@ public final class MapReduceTopComponent extends TopComponent {
             DialogBinding.bindComponentToFile(fob, 0, 0, epEditor);
         } catch(IOException ex) {
         }
+    }
+
+    /**
+     * A query that is stored in the history.
+     */
+    private static final class MapReduceHistoryItem implements QueryHistory.QueryHistoryItem {
+
+        private static final int MAX_LENGTH = 100;
+
+        @Getter private final String mapFunction;
+        @Getter private final String reduceFunction;
+
+        public MapReduceHistoryItem(String map, String reduce) {
+            mapFunction = Objects.requireNonNull(map);
+            reduceFunction = Objects.requireNonNull(reduce);
+        }
+
+        public String getMapString() {
+            final String temp = mapFunction.replaceAll("\\s", " ").replaceAll("\\s+", " ");
+            return temp.length() > MAX_LENGTH ? temp.substring(0, MAX_LENGTH) +"..." : temp;
+        }
+
+        public String getReduceString() {
+            final String temp = reduceFunction.replaceAll("\\s", " ").replaceAll("\\s+", " ");
+            return temp.length() > MAX_LENGTH ? temp.substring(0, MAX_LENGTH) +"..." : temp;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof MapReduceHistoryItem))
+                return false;
+
+            final MapReduceHistoryItem other  = (MapReduceHistoryItem) o;
+            return new EqualsBuilder().append(mapFunction, other.mapFunction)
+                                      .append(reduceFunction, other.reduceFunction).isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder().append(mapFunction)
+                                        .append(reduceFunction).toHashCode();
+        }
+
+    }
+
+    /**
+     * The model of the history combobox. It displays the values of the QueryHistory and updates whenever there is a new
+     * history entry .
+     */
+    private static final class MapReduceHistoryModel extends DefaultComboBoxModel<MapReduceHistoryItem>
+                                                     implements PropertyChangeListener{
+
+        private final QueryHistory qHistory;
+
+        public MapReduceHistoryModel(QueryHistory qHistory) {
+            this.qHistory = qHistory;
+            this.qHistory.addPropertyChangeListener(this);
+        }
+
+        @Override
+        public int getSize() {
+            return qHistory.getItems().size();
+        }
+
+        @Override
+        public MapReduceHistoryItem getElementAt(int index) {
+            return (MapReduceHistoryItem) qHistory.getItems().get(index);
+        }
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            if(QueryHistory.PROPERTY_ITEMS.equals(evt.getPropertyName()))
+                fireContentsChanged(this, 0, getSize() -1);
+        }
+
+    }
+
+    /**
+     * A renderer for the map/reduce functions displayed in the history combobox.
+     */
+    private static final class MapReduceHistoryItemRenderer extends JPanel
+                                                            implements ListCellRenderer<MapReduceHistoryItem> {
+
+        private final JLabel lblMapFunction;
+        private final JLabel lblReduceFunction;
+
+        public MapReduceHistoryItemRenderer() {
+            setLayout(new GridLayout(2, 1, 5, 0));
+            setBorder(new EmptyBorder(0, 0, 2, 0));
+
+            final JPanel pnlFirstRow = new JPanel(new BorderLayout());
+            final JLabel lblMapDesc = new JLabel("Map: ");
+            lblMapDesc.setFont(lblMapDesc.getFont().deriveFont(Font.BOLD));
+            pnlFirstRow.add(lblMapDesc, BorderLayout.WEST);
+            pnlFirstRow.add(lblMapFunction = new JLabel(), BorderLayout.CENTER);
+            add(pnlFirstRow);
+
+            final JPanel pnlSecondRow = new JPanel(new BorderLayout());
+            final JLabel lblReduceDesc = new JLabel("Reduce: ");
+            lblReduceDesc.setFont(lblReduceDesc.getFont().deriveFont(Font.BOLD));
+            pnlSecondRow.add(lblReduceDesc, BorderLayout.WEST);
+            pnlSecondRow.add(lblReduceFunction = new JLabel(), BorderLayout.CENTER);
+            add(pnlSecondRow);
+        }
+
+        @Override
+        public Component getListCellRendererComponent(JList<? extends MapReduceHistoryItem> list,
+                         MapReduceHistoryItem value, int index, boolean isSelected, boolean cellHasFocus) {
+            lblMapFunction.setText(null == value ? "" : value.getMapString());
+            lblReduceFunction.setText(null == value ? "" : value.getReduceString());
+            return this;
+        }
+
     }
 
 }

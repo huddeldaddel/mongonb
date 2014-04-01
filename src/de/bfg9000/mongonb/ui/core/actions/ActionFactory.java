@@ -12,10 +12,15 @@ import javax.swing.Action;
  */
 public class ActionFactory {
 
-    public Collection<Action> getActionsForTableContextMenu(DBObject selectedItem) {
+    public Collection<Action> getActionsForTableContextMenu(Collection<DBObject> selectedItems) {
         final Collection<Action> result = new LinkedList<Action>();
-        if(null != selectedItem)
-            result.add(new CopyEntryAction(selectedItem));
+        if((null == selectedItems) || selectedItems.isEmpty())
+            return result;
+
+        // Copy
+        result.add(1 == selectedItems.size() ?
+                   new CopyEntryAction(selectedItems.iterator().next()) : new CopyEntriesAction(selectedItems));
+
         return result;
     }
 

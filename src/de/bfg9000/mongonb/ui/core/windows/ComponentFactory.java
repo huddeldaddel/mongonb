@@ -8,6 +8,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import java.awt.Component;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.event.ListSelectionEvent;
@@ -33,13 +34,18 @@ class ComponentFactory implements HierarchicalTableComponentFactory {
                 @Override
                 public void valueChanged(ListSelectionEvent e) {
                     if(!e.getValueIsAdjusting())
-                        table.setComponentPopupMenu(menuFactory.buildContextMenu(getSelectedItem(table)));
+                        table.setComponentPopupMenu(menuFactory.buildContextMenu(getSelectedItems(table)));
                 }
-                private DBObject getSelectedItem(HierarchicalTable table) {
+                private Collection<DBObject> getSelectedItems(HierarchicalTable table) {
                     if(-1 == table.getSelectedRow())
                         return null;
-                    final PropertyObject pObject = value.get(table.getSelectedRow());
-                    return new BasicDBObject(pObject.getProperty(), pObject.getObject());
+
+                    final Collection<DBObject> result = new ArrayList<DBObject>(table.getSelectedRowCount());
+                    for(int index: table.getSelectedRows()) {
+                        final PropertyObject pObject = value.get(index);
+                        result.add(new BasicDBObject(pObject.getProperty(), pObject.getObject()));
+                    }
+                    return result;
                 }
             });
             final TreeLikeHierarchicalPanel result = new TreeLikeHierarchicalPanel(new FitScrollPane(table));
@@ -55,15 +61,20 @@ class ComponentFactory implements HierarchicalTableComponentFactory {
                 @Override
                 public void valueChanged(ListSelectionEvent e) {
                     if(!e.getValueIsAdjusting())
-                        table.setComponentPopupMenu(menuFactory.buildContextMenu(getSelectedItem(table)));
+                        table.setComponentPopupMenu(menuFactory.buildContextMenu(getSelectedItems(table)));
                 }
-                private DBObject getSelectedItem(HierarchicalTable table) {
+                private Collection<DBObject> getSelectedItems(HierarchicalTable table) {
                     if(-1 == table.getSelectedRow())
                         return null;
+
                     final List<String> keys = new ArrayList<String>(value.keySet());
                     Collections.sort(keys);
-                    final String property = keys.get(table.getSelectedRow());
-                    return new BasicDBObject(property, value.get(property));
+                    final Collection<DBObject> result = new ArrayList<DBObject>(table.getSelectedRowCount());
+                    for(int index: table.getSelectedRows()) {
+                        final String property = keys.get(index);
+                        result.add(new BasicDBObject(property, value.get(property)));
+                    }
+                    return result;
                 }
             });
             return new TreeLikeHierarchicalPanel(new FitScrollPane(table));

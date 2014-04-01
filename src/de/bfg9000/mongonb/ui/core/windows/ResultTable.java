@@ -2,6 +2,7 @@ package de.bfg9000.mongonb.ui.core.windows;
 
 import com.mongodb.DBObject;
 import de.bfg9000.mongonb.core.Collection;
+import java.util.LinkedList;
 import javax.swing.SwingWorker;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -32,13 +33,16 @@ class ResultTable extends javax.swing.JPanel {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if(!e.getValueIsAdjusting())
-                    tblData.setComponentPopupMenu(new TableContextMenuFactory().buildContextMenu(getSelectedItem()));
+                    tblData.setComponentPopupMenu(new TableContextMenuFactory().buildContextMenu(getSelectedItems()));
             }
-            private DBObject getSelectedItem() {
+            private java.util.Collection<DBObject> getSelectedItems() {
                 if(-1 == tblData.getSelectedRow())
                     return null;
 
-                return dataCache.getContent().get(tblData.getSelectedRow());
+                final java.util.Collection<DBObject> result = new LinkedList<DBObject>();
+                for(int index: tblData.getSelectedRows())
+                    result.add(dataCache.getContent().get(index));
+                return result;
             }
         });
     }

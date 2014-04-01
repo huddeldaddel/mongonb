@@ -2,6 +2,7 @@ package de.bfg9000.mongonb.ui.core.windows;
 
 import com.mongodb.DBObject;
 import de.bfg9000.mongonb.ui.core.actions.ActionFactory;
+import java.util.Collection;
 import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -13,9 +14,9 @@ import javax.swing.JPopupMenu;
  */
 class TableContextMenuFactory {
 
-    public JPopupMenu buildContextMenu(DBObject selectedItem) {
+    public JPopupMenu buildContextMenu(Collection<DBObject> selectedItems) {
         final JPopupMenu result = new JPopupMenu();
-        for(Action action: new ActionFactory().getActionsForTableContextMenu(selectedItem))
+        for(Action action: new ActionFactory().getActionsForTableContextMenu(selectedItems))
             result.add(new JMenuItem(action));
         return result;
     }

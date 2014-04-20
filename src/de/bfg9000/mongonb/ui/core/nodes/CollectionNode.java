@@ -5,6 +5,9 @@ import de.bfg9000.mongonb.core.Database;
 import de.bfg9000.mongonb.ui.core.actions.DropCollectionAction;
 import de.bfg9000.mongonb.ui.core.actions.OpenMapReduceWindowAction;
 import de.bfg9000.mongonb.ui.core.actions.OpenQueryWindowAction;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import javax.swing.Action;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
@@ -32,11 +35,12 @@ class CollectionNode extends AbstractNode {
 
     @Override
     public Action[] getActions(boolean context) {
-        return new Action[] {
-            new OpenQueryWindowAction(collection),
-            new OpenMapReduceWindowAction(collection),
-            new DropCollectionAction(collection, database)
-        };
+        final List<Action> actions = new LinkedList<Action>();
+        actions.add(new OpenQueryWindowAction(collection));
+        actions.add(new OpenMapReduceWindowAction(collection));
+        actions.add(new DropCollectionAction(collection, database));
+        actions.addAll(Arrays.asList(super.getActions(context)));
+        return actions.toArray(new Action[actions.size()]);
     }
 
 }

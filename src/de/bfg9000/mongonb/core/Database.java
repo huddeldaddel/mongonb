@@ -1,6 +1,7 @@
 package de.bfg9000.mongonb.core;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.CommandResult;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Collections;
@@ -71,6 +72,11 @@ public class Database {
         final java.util.Collection<Collection> old = getCollections();
         collection.drop();
         propSupport.firePropertyChange(PROPERTY_COLLECTIONS, old, getCollections());
+    }
+
+    public CommandResult getStats() {
+        final CommandResult result = connection.getMongoClient().getDB(name).getStats();
+        return result.ok() ? result : null;
     }
 
     /**

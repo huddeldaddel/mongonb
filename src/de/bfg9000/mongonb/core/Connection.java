@@ -5,6 +5,7 @@ import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,6 +16,7 @@ import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import lombok.Getter;
 import lombok.ToString;
+import org.openide.util.Exceptions;
 
 /**
  * This class contains the information required to establish a connection to a MongoDB server.
@@ -34,6 +36,7 @@ public class Connection {
     public static final String PROPERTY_AUTH_PASSWORD = "authPassword";
     public static final String PROPERTY_AUTH_DATABASE = "authDatabase";
     public static final String PROPERTY_CONNECTED = "connected";
+    public static final String PROPERTY_DATABASES = "databases";
 
     @Getter private String host = "localhost";
     @Getter private Integer port = 27017;
@@ -169,6 +172,27 @@ public class Connection {
         } catch(Exception ignore) {
             return false;
         }
+    }
+
+    /**
+     * Creates a new database with the given name. The database will be written to the filesystem.
+     * @param name the name of the new database
+     * @return the {@code Database} wrapper object
+     */
+    public Database createDatabase(String name) {
+        if(!isConnected())
+            throw new IllegalStateException("not connected");
+        final java.util.Collection<Database> old = getDatabases();
+        final Database result = new Database(this, name);
+        try {
+            final Collection tempCollection = result.createCollection("temp");  // create temporary collection and add a
+            tempCollection.add("{\"a\" : 1}");                                  // document to force mongodb to persist
+            result.removeCollection(tempCollection);                            // the database to the file-system.
+        } catch(IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        propSupport.firePropertyChange(PROPERTY_DATABASES, old, getDatabases());
+        return result;
     }
 
     @SuppressWarnings("unchecked")

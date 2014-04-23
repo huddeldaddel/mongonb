@@ -74,9 +74,23 @@ public class Database {
         propSupport.firePropertyChange(PROPERTY_COLLECTIONS, old, getCollections());
     }
 
+    /**
+     * Drops this database, deleting the associated data files.
+     */
+    public void drop() {
+        connection.getMongoClient().getDB(name).dropDatabase();
+    }
+
+    /**
+     * @return the results of the 'dbStats' mongo server command
+     */
     public CommandResult getStats() {
-        final CommandResult result = connection.getMongoClient().getDB(name).getStats();
-        return result.ok() ? result : null;
+        try {
+            final CommandResult result = connection.getMongoClient().getDB(name).getStats();
+            return result.ok() ? result : null;
+        } catch(Exception ex) {
+            return null;
+        }
     }
 
     /**

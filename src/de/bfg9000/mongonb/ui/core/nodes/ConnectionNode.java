@@ -2,6 +2,7 @@ package de.bfg9000.mongonb.ui.core.nodes;
 
 import de.bfg9000.mongonb.core.Connection;
 import de.bfg9000.mongonb.ui.core.actions.ConnectAction;
+import de.bfg9000.mongonb.ui.core.actions.CreateDatabaseAction;
 import de.bfg9000.mongonb.ui.core.actions.DeleteConnectionAction;
 import de.bfg9000.mongonb.ui.core.actions.DisconnectAction;
 import de.bfg9000.mongonb.ui.core.actions.EditConnectionAction;
@@ -61,6 +62,8 @@ class ConnectionNode extends AbstractNode implements PropertyChangeListener {
         actions.add(disconnectAction);
         actions.add(new DeleteConnectionAction(connection));
         actions.add(new EditConnectionAction(connection));
+        if(connection.isConnected())
+            actions.add(new CreateDatabaseAction(connection));
         actions.addAll(Arrays.asList(super.getActions(context)));
         return actions.toArray(new Action[actions.size()]);
     }

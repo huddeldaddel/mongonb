@@ -30,12 +30,16 @@ class DatabaseNodeFactory extends ChildFactory<Database> implements PropertyChan
 
     @Override
     protected Node createNodeForKey(Database key) {
-        return new DatabaseNode(key);
+        final DatabaseNode result = new DatabaseNode(key);
+        result.addPropertyChangeListener(this);
+        return result;
     }
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if(evt.getPropertyName().equals(Connection.PROPERTY_CONNECTED))
+        if(evt.getPropertyName().equals(Connection.PROPERTY_CONNECTED) ||
+           evt.getPropertyName().equals(Connection.PROPERTY_DATABASES) ||
+           evt.getPropertyName().equals(DatabaseNode.PROPERTY_REMOVED))
             refresh(false);
     }
 

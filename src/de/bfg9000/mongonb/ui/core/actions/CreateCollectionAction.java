@@ -59,8 +59,7 @@ public class CreateCollectionAction extends AbstractAction {
         final String title = bundle.getString("CreateCollectionAction.InputTitle");
         final NotifyDescriptor.InputLine il = new NotifyDescriptor.InputLine(text, title);
         il.setInputText(defaultValue);
-        return NotifyDescriptor.OK_OPTION == DialogDisplayer.getDefault().notify(il) ?
-               il.getInputText() : null;
+        return NotifyDescriptor.OK_OPTION == DialogDisplayer.getDefault().notify(il) ? il.getInputText() : null;
     }
 
     /**

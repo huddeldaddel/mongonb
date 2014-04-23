@@ -18,7 +18,7 @@ import org.openide.util.NbBundle;
  */
 public class DropCollectionAction extends AbstractAction {
 
-    private static final ResourceBundle bundle = NbBundle.getBundle(CreateCollectionAction.class);
+    private static final ResourceBundle bundle = NbBundle.getBundle(DropCollectionAction.class);
 
     private final Collection collection;
     private final Database database;

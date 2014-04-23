@@ -4,6 +4,7 @@ import com.mongodb.CommandResult;
 import com.mongodb.DBObject;
 import de.bfg9000.mongonb.core.Database;
 import de.bfg9000.mongonb.ui.core.actions.CreateCollectionAction;
+import de.bfg9000.mongonb.ui.core.actions.DropDatabaseAction;
 import java.lang.reflect.InvocationTargetException;
 import java.text.NumberFormat;
 import java.util.Arrays;
@@ -22,9 +23,10 @@ import org.openide.util.NbBundle;
  *
  * @author thomaswerner35
  */
-class DatabaseNode extends AbstractNode {
+public class DatabaseNode extends AbstractNode {
 
     public static final String ICON = "de/bfg9000/mongonb/ui/core/images/database.png";
+    public static final String PROPERTY_REMOVED = "removed";
 
     private static final ResourceBundle bundle = NbBundle.getBundle(DatabaseNode.class);
 
@@ -42,44 +44,54 @@ class DatabaseNode extends AbstractNode {
     public Action[] getActions(boolean context) {
         final List<Action> actions = new LinkedList<Action>();
         actions.add(new CreateCollectionAction(database));
+        actions.add(new DropDatabaseAction(this));
         actions.addAll(Arrays.asList(super.getActions(context)));
         return actions.toArray(new Action[actions.size()]);
     }
 
+    public void drop() {
+        database.drop();
+        firePropertyChange(PROPERTY_REMOVED, false, true);
+    }
+
     @Override
     protected Sheet createSheet() {
+        final NumberFormat nfi = NumberFormat.getIntegerInstance();
+        final NumberFormat nfn = NumberFormat.getNumberInstance();
         final Sheet result = new Sheet();
-        final Sheet.Set defaultProperties = Sheet.createPropertiesSet();
+        final Sheet.Set defaultProps = Sheet.createPropertiesSet();
         final CommandResult stats = database.getStats();
-        defaultProperties.put(new LocalizedProperty("serverUsed", stats.get("serverUsed")));
-        defaultProperties.put(new LocalizedProperty("db", stats.get("db")));
-        defaultProperties.put(new LocalizedProperty("collections", stats.get("collections") instanceof Integer ?
-                              NumberFormat.getIntegerInstance().format((Integer) stats.get("collections")) : ""));
-        defaultProperties.put(new LocalizedProperty("objects", stats.get("objects") instanceof Integer ?
-                              NumberFormat.getIntegerInstance().format((Integer) stats.get("objects")) : ""));
-        defaultProperties.put(new LocalizedProperty("avgObjSize", stats.get("avgObjSize") instanceof Double ?
-                              NumberFormat.getNumberInstance().format((Double) stats.get("avgObjSize")) : ""));
-        defaultProperties.put(new LocalizedProperty("dataSize", stats.get("dataSize") instanceof Integer ?
-                              NumberFormat.getIntegerInstance().format((Integer) stats.get("dataSize")) : ""));
-        defaultProperties.put(new LocalizedProperty("storageSize", stats.get("storageSize") instanceof Integer ?
-                              NumberFormat.getIntegerInstance().format((Integer) stats.get("storageSize")) : ""));
-        defaultProperties.put(new LocalizedProperty("numExtents", stats.get("numExtents") instanceof Integer ?
-                              NumberFormat.getIntegerInstance().format((Integer) stats.get("numExtents")) : ""));
-        defaultProperties.put(new LocalizedProperty("indexes", stats.get("indexes") instanceof Integer ?
-                              NumberFormat.getIntegerInstance().format((Integer) stats.get("indexes")) : ""));
-        defaultProperties.put(new LocalizedProperty("indexSize", stats.get("indexSize") instanceof Integer ?
-                              NumberFormat.getIntegerInstance().format((Integer) stats.get("indexSize")) : ""));
-        defaultProperties.put(new LocalizedProperty("fileSize", stats.get("fileSize") instanceof Integer ?
-                              NumberFormat.getIntegerInstance().format((Integer) stats.get("fileSize")) : ""));
-        defaultProperties.put(new LocalizedProperty("nsSizeMB", stats.get("nsSizeMB") instanceof Integer ?
-                              NumberFormat.getIntegerInstance().format((Integer) stats.get("nsSizeMB")) : ""));
-        defaultProperties.put(new LocalizedProperty("dataFileVersion", stats.get("dataFileVersion") instanceof DBObject?
-                              ((DBObject)stats.get("dataFileVersion")).get("major") +"." +
-                              ((DBObject)stats.get("dataFileVersion")).get("minor") : ""));
-        defaultProperties.put(new LocalizedProperty("ok", Double.valueOf(1.0).equals(stats.get("ok")) ?
-                              bundle.getString("DatabaseNode.property.value.yes") :
-                              bundle.getString("DatabaseNode.property.value.no")));
-        result.put(defaultProperties);
+        if(null != stats) {
+            defaultProps.put(new LocalizedProperty("serverUsed", stats.get("serverUsed")));
+            defaultProps.put(new LocalizedProperty("db", stats.get("db")));
+            defaultProps.put(new LocalizedProperty("collections", stats.get("collections") instanceof Number ?
+                             nfi.format(((Number) stats.get("collections")).doubleValue()) : ""));
+            defaultProps.put(new LocalizedProperty("objects", stats.get("objects") instanceof Number ?
+                             nfi.format(((Number) stats.get("objects")).doubleValue()) : ""));
+            defaultProps.put(new LocalizedProperty("avgObjSize", stats.get("avgObjSize") instanceof Number ?
+                             nfn.format(((Number) stats.get("avgObjSize")).doubleValue()) : ""));
+            defaultProps.put(new LocalizedProperty("dataSize", stats.get("dataSize") instanceof Number ?
+                             nfi.format(((Number) stats.get("dataSize")).doubleValue()) : ""));
+            defaultProps.put(new LocalizedProperty("storageSize", stats.get("storageSize") instanceof Number ?
+                             nfi.format(((Number) stats.get("storageSize")).doubleValue()) : ""));
+            defaultProps.put(new LocalizedProperty("numExtents", stats.get("numExtents") instanceof Number ?
+                             nfi.format(((Number) stats.get("numExtents")).doubleValue()) : ""));
+            defaultProps.put(new LocalizedProperty("indexes", stats.get("indexes") instanceof Number ?
+                             nfi.format(((Number) stats.get("indexes")).doubleValue()) : ""));
+            defaultProps.put(new LocalizedProperty("indexSize", stats.get("indexSize") instanceof Number ?
+                             nfi.format(((Number) stats.get("indexSize")).doubleValue()) : ""));
+            defaultProps.put(new LocalizedProperty("fileSize", stats.get("fileSize") instanceof Number ?
+                             nfi.format(((Number) stats.get("fileSize")).doubleValue()) : ""));
+            defaultProps.put(new LocalizedProperty("nsSizeMB", stats.get("nsSizeMB") instanceof Number ?
+                             nfi.format(((Number) stats.get("nsSizeMB")).doubleValue()) : ""));
+            defaultProps.put(new LocalizedProperty("dataFileVersion", stats.get("dataFileVersion") instanceof DBObject?
+                             ((DBObject)stats.get("dataFileVersion")).get("major") +"." +
+                             ((DBObject)stats.get("dataFileVersion")).get("minor") : ""));
+            defaultProps.put(new LocalizedProperty("ok", Double.valueOf(1.0).equals(stats.get("ok")) ?
+                             bundle.getString("DatabaseNode.property.value.yes") :
+                             bundle.getString("DatabaseNode.property.value.no")));
+        }
+        result.put(defaultProps);
         return result;
     }
 

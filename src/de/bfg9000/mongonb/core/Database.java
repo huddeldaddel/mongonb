@@ -84,12 +84,12 @@ public class Database {
     /**
      * @return the results of the 'dbStats' mongo server command
      */
-    public CommandResult getStats() {
+    public DatabaseStats getStats() {
         try {
             final CommandResult result = connection.getMongoClient().getDB(name).getStats();
-            return result.ok() ? result : null;
+            return new DatabaseStats(result.ok() ? result : null);
         } catch(Exception ex) {
-            return null;
+            return new DatabaseStats(null);
         }
     }
 

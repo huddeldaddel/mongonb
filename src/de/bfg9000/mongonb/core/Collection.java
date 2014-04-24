@@ -124,12 +124,12 @@ public class Collection {
     /**
      * @return the results of the collStats mongo server command
      */
-    public CommandResult getStats() {
+    public CollectionStats getStats() {
         try {
             final CommandResult result = connection.getMongoClient().getDB(database).getCollection(name).getStats();
-            return result.ok() ? result : null;
+            return new CollectionStats(this, result.ok() ? result : null);
         } catch(Exception iae) {
-            return null;
+            return new CollectionStats(this, null);
         }
     }
 

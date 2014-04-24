@@ -1,18 +1,17 @@
 package de.bfg9000.mongonb.ui.core.nodes;
 
-import com.mongodb.CommandResult;
 import de.bfg9000.mongonb.core.Collection;
+import de.bfg9000.mongonb.core.CollectionStats;
 import de.bfg9000.mongonb.core.Database;
 import de.bfg9000.mongonb.ui.core.actions.DropCollectionAction;
 import de.bfg9000.mongonb.ui.core.actions.OpenMapReduceWindowAction;
 import de.bfg9000.mongonb.ui.core.actions.OpenQueryWindowAction;
-import java.lang.reflect.InvocationTargetException;
-import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 import javax.swing.Action;
+import lombok.Getter;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.PropertySupport;
@@ -54,41 +53,23 @@ class CollectionNode extends AbstractNode {
 
     @Override
     protected Sheet createSheet() {
-        final NumberFormat nfi = NumberFormat.getIntegerInstance();
-        final NumberFormat nfn = NumberFormat.getNumberInstance();
         final Sheet result = new Sheet();
         final Sheet.Set defaultProps = Sheet.createPropertiesSet();
-        final CommandResult stats = collection.getStats();
-        if(null != stats) {
-            defaultProps.put(new LocalizedProperty("serverUsed", stats.get("serverUsed")));
-            defaultProps.put(new LocalizedProperty("ns", stats.get("ns")));
-            defaultProps.put(new LocalizedProperty("capped", collection.isCapped() ?
-                             bundle.getString("CollectionNode.property.value.yes") :
-                             bundle.getString("CollectionNode.property.value.no")));
-            defaultProps.put(new LocalizedProperty("count", stats.get("count") instanceof Number ?
-                             nfi.format(((Number) stats.get("count")).doubleValue()) : ""));
-            defaultProps.put(new LocalizedProperty("size", stats.get("size") instanceof Number ?
-                             nfi.format(((Number) stats.get("size")).doubleValue()) : ""));
-            defaultProps.put(new LocalizedProperty("storageSize", stats.get("storageSize") instanceof Number ?
-                             nfi.format(((Number) stats.get("storageSize")).doubleValue()) : ""));
-            defaultProps.put(new LocalizedProperty("numExtents", stats.get("numExtents") instanceof Number ?
-                             nfi.format(((Number) stats.get("numExtents")).doubleValue()) : ""));
-            defaultProps.put(new LocalizedProperty("nindexes", stats.get("nindexes") instanceof Number ?
-                             nfi.format(((Number) stats.get("nindexes")).doubleValue()) : ""));
-            defaultProps.put(new LocalizedProperty("lastExtentSize", stats.get("lastExtentSize") instanceof Number ?
-                             nfi.format(((Number) stats.get("lastExtentSize")).doubleValue()) : ""));
-            defaultProps.put(new LocalizedProperty("paddingFactor", stats.get("paddingFactor") instanceof Number ?
-                             nfn.format(((Number) stats.get("paddingFactor")).doubleValue()) : ""));
-            defaultProps.put(new LocalizedProperty("systemFlags", stats.get("systemFlags") instanceof Number ?
-                             nfi.format(((Number) stats.get("systemFlags")).doubleValue()) : ""));
-            defaultProps.put(new LocalizedProperty("userFlags", stats.get("userFlags") instanceof Number ?
-                             nfi.format(((Number) stats.get("userFlags")).doubleValue()) : ""));
-            defaultProps.put(new LocalizedProperty("totalIndexSize", stats.get("totalIndexSize") instanceof Number ?
-                             nfi.format(((Number) stats.get("totalIndexSize")).doubleValue()) : ""));
-            defaultProps.put(new LocalizedProperty("ok", Double.valueOf(1.0).equals(stats.get("ok")) ?
-                             bundle.getString("CollectionNode.property.value.yes") :
-                             bundle.getString("CollectionNode.property.value.no")));
-        }
+        final CollectionStats stats = collection.getStats();
+        defaultProps.put(new LocalizedProperty("serverUsed", stats.getServerUsed()));
+        defaultProps.put(new LocalizedProperty("ns", stats.getNs()));
+        defaultProps.put(new LocalizedProperty("capped", stats.getCapped()));
+        defaultProps.put(new LocalizedProperty("count", stats.getCount()));
+        defaultProps.put(new LocalizedProperty("size", stats.getSize()));
+        defaultProps.put(new LocalizedProperty("storageSize", stats.getStorageSize()));
+        defaultProps.put(new LocalizedProperty("numExtents", stats.getNumExtents()));
+        defaultProps.put(new LocalizedProperty("nindexes", stats.getNindexes()));
+        defaultProps.put(new LocalizedProperty("lastExtentSize", stats.getLastExtentSize()));
+        defaultProps.put(new LocalizedProperty("paddingFactor", stats.getPaddingFactor()));
+        defaultProps.put(new LocalizedProperty("systemFlags", stats.getSystemFlags()));
+        defaultProps.put(new LocalizedProperty("userFlags", stats.getUserFlags()));
+        defaultProps.put(new LocalizedProperty("totalIndexSize", stats.getTotalIndexSize()));
+        defaultProps.put(new LocalizedProperty("ok", stats.getOk()));
         result.put(defaultProps);
         return result;
     }
@@ -98,19 +79,15 @@ class CollectionNode extends AbstractNode {
      */
     private final static class LocalizedProperty extends PropertySupport.ReadOnly<String> {
 
-        private final Object data;
+        @Getter private final String value;
 
-        public LocalizedProperty(String propertyName, Object data) {
+        public LocalizedProperty(String propertyName, String value) {
             super(bundle.getString("CollectionNode.property." +propertyName +".name"), String.class,
                   bundle.getString("CollectionNode.property." +propertyName +".displayname"),
                   bundle.getString("CollectionNode.property." +propertyName +".shortdesc"));
-            this.data = data;
+            this.value = value;
         }
 
-        @Override
-        public String getValue() throws IllegalAccessException, InvocationTargetException {
-            return null == data ? "" : data.toString();
-        }
     }
 
 }

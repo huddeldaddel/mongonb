@@ -10,13 +10,14 @@ import java.util.LinkedList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * POJO that holds the data of a database managed by a MongoDB server.
  *
  * @author thomaswerner35
  */
-@AllArgsConstructor
+@AllArgsConstructor @ToString
 public class Database {
 
     public static final String PROPERTY_COLLECTIONS = "collections";

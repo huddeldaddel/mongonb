@@ -4,6 +4,7 @@ import com.mongodb.CommandResult;
 import java.text.NumberFormat;
 import java.util.ResourceBundle;
 import lombok.Getter;
+import lombok.ToString;
 import org.openide.util.NbBundle;
 
 /**
@@ -11,6 +12,7 @@ import org.openide.util.NbBundle;
  *
  * @author thomaswerner35
  */
+ @ToString
 public class CollectionStats {
 
     private static final ResourceBundle bundle = NbBundle.getBundle(CollectionStats.class);

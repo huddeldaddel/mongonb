@@ -9,19 +9,21 @@ import static com.mongodb.MapReduceCommand.OutputType.INLINE;
 import com.mongodb.MapReduceOutput;
 import com.mongodb.WriteResult;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 
 /**
  * Wrapps a MongoDB collection.
  *
  * @author thomaswerner35
  */
-@AllArgsConstructor
+@AllArgsConstructor @ToString
 public class Collection {
 
     @Getter private final Connection connection;
@@ -122,13 +124,25 @@ public class Collection {
     }
 
     /**
+     * @return the {@code Index}es of this {@code Collection}
+     */
+    public java.util.Collection<Index> getIndexes() {
+        final DBCollection collection = connection.getMongoClient().getDB(database).getCollection(name);
+        final List<DBObject> indexInfo = collection.getIndexInfo();
+        final List<Index> result = new ArrayList<Index>(indexInfo.size());
+        for(DBObject index: indexInfo)
+            result.add(new Index(index));
+        return result;
+    }
+
+    /**
      * @return the results of the collStats mongo server command
      */
     public CollectionStats getStats() {
         try {
             final CommandResult result = connection.getMongoClient().getDB(database).getCollection(name).getStats();
             return new CollectionStats(this, result.ok() ? result : null);
-        } catch(Exception iae) {
+        } catch(Exception e) {
             return new CollectionStats(this, null);
         }
     }

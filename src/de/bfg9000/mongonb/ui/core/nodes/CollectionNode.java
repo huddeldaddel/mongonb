@@ -62,6 +62,9 @@ class CollectionNode extends AbstractNode {
         if(null != stats) {
             defaultProps.put(new LocalizedProperty("serverUsed", stats.get("serverUsed")));
             defaultProps.put(new LocalizedProperty("ns", stats.get("ns")));
+            defaultProps.put(new LocalizedProperty("capped", collection.isCapped() ?
+                             bundle.getString("CollectionNode.property.value.yes") :
+                             bundle.getString("CollectionNode.property.value.no")));
             defaultProps.put(new LocalizedProperty("count", stats.get("count") instanceof Number ?
                              nfi.format(((Number) stats.get("count")).doubleValue()) : ""));
             defaultProps.put(new LocalizedProperty("size", stats.get("size") instanceof Number ?

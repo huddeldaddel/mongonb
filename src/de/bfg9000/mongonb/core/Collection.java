@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -24,8 +23,6 @@ import lombok.Getter;
  */
 @AllArgsConstructor
 public class Collection {
-
-    private static final Logger logger = Logger.getLogger(Collection.class.getName());
 
     @Getter private final Connection connection;
     @Getter private final String database;
@@ -129,11 +126,15 @@ public class Collection {
      */
     public CommandResult getStats() {
         try {
-            final CommandResult result = connection.getMongoClient().getDB(name).getCollection(name).getStats();
+            final CommandResult result = connection.getMongoClient().getDB(database).getCollection(name).getStats();
             return result.ok() ? result : null;
         } catch(Exception iae) {
             return null;
         }
+    }
+
+    public boolean isCapped() {
+        return connection.getMongoClient().getDB(database).getCollection(name).isCapped();
     }
 
 }

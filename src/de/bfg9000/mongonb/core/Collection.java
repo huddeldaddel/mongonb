@@ -103,7 +103,7 @@ public class Collection {
      *
      * @return a map of (field name)-&gt;(# of usages)
      */
-    public Map<String, Integer> getFields() {
+    public Map<String, Long> getFields() {
         final String mapFunction = "" +
                 "function() {                         \n" +
                 "   for(var prop in this)             \n" +
@@ -117,9 +117,9 @@ public class Collection {
         final DBCollection collection = connection.getMongoClient().getDB(database).getCollection(name);
         final MapReduceOutput out= collection.mapReduce(mapFunction, reduceFunction, null, INLINE, new BasicDBObject());
 
-        final Map<String, Integer> result = new HashMap<String, Integer>();
+        final Map<String, Long> result = new HashMap<String, Long>();
         for(DBObject object: out.results())
-            result.put((String)object.get("_id"), ((Double)object.get("value")).intValue());
+            result.put((String)object.get("_id"), ((Double)object.get("value")).longValue());
         return result;
     }
 

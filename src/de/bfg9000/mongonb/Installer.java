@@ -1,5 +1,6 @@
 package de.bfg9000.mongonb;
 
+import com.jidesoft.grid.CellRendererManager;
 import static com.jidesoft.utils.Lm.verifyLicense;
 import de.bfg9000.mongonb.core.Connection;
 import de.bfg9000.mongonb.core.ConnectionManager;
@@ -22,6 +23,7 @@ public class Installer extends ModuleInstall {
     @Override
     public void restored() {
         verifyLicense("Thomas Werner", "MongoNb", "7okEKvBubaMAOOroAD0ROAUoGaWMu0L1");
+        CellRendererManager.initDefaultRenderer();
     }
 
 }

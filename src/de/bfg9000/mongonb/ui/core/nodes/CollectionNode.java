@@ -4,6 +4,7 @@ import de.bfg9000.mongonb.core.Collection;
 import de.bfg9000.mongonb.core.CollectionStats;
 import de.bfg9000.mongonb.core.Database;
 import de.bfg9000.mongonb.ui.core.actions.DropCollectionAction;
+import de.bfg9000.mongonb.ui.core.actions.ManageIndexesAction;
 import de.bfg9000.mongonb.ui.core.actions.OpenMapReduceWindowAction;
 import de.bfg9000.mongonb.ui.core.actions.OpenQueryWindowAction;
 import java.util.Arrays;
@@ -46,6 +47,7 @@ class CollectionNode extends AbstractNode {
         final List<Action> actions = new LinkedList<Action>();
         actions.add(new OpenQueryWindowAction(collection));
         actions.add(new OpenMapReduceWindowAction(collection));
+        actions.add(new ManageIndexesAction(collection));
         actions.add(new DropCollectionAction(collection, database));
         actions.addAll(Arrays.asList(super.getActions(context)));
         return actions.toArray(new Action[actions.size()]);

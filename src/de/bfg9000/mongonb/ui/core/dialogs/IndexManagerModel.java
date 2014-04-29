@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import lombok.Getter;
 
 /**
  * Manages the data of the IndexManagerDialog. Keeps track of changes etc.
@@ -18,12 +19,14 @@ class IndexManagerModel {
 
     public static final String PROPERTY_INDEXES = "indexes";
 
+    @Getter private final Collection collection;
     private final List<Index> indexes = new ArrayList<Index>();
     private final List<Index> indexesToCreate = new ArrayList<Index>();
     private final List<Index> indexesToDelete = new ArrayList<Index>();
     private final PropertyChangeSupport propSupport = new PropertyChangeSupport(this);
 
     public IndexManagerModel(Collection collection) {
+        this.collection = collection;
         indexes.addAll(collection.getIndexes());
         Collections.sort(indexes, new IndexComparator());
     }
@@ -81,6 +84,10 @@ class IndexManagerModel {
             indexesToDelete.add(indexToDelete);
         indexes.remove(indexToDelete);
         propSupport.firePropertyChange(PROPERTY_INDEXES, old, Collections.unmodifiableList(indexes));
+    }
+
+    public java.util.Collection<Index> getIndexes() {
+        return Collections.unmodifiableList(indexes);
     }
 
     public java.util.Collection<Index> getIndexesToCreate() {

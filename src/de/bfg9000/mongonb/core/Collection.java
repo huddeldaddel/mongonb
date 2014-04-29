@@ -7,7 +7,9 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import static com.mongodb.MapReduceCommand.OutputType.INLINE;
 import com.mongodb.MapReduceOutput;
+import com.mongodb.MongoException;
 import com.mongodb.WriteResult;
+import de.bfg9000.mongonb.core.Index.Key;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -133,6 +135,25 @@ public class Collection {
         for(DBObject index: indexInfo)
             result.add(new Index(index));
         return result;
+    }
+
+    public void createIndex(Index index) throws MongoException {
+        final DBCollection collection = connection.getMongoClient().getDB(database).getCollection(name);
+        final BasicDBObject keys = new BasicDBObject();
+        for(Key key: index.getKeys())
+            keys.append(key.getColumn(), key.isOrderedAscending() ? 1 : -1);
+        final BasicDBObject options = new BasicDBObject();
+        if(index.isSparse())
+            options.append("sparse", true);
+        if(index.isUnique())
+            options.append("unique", true);
+        if(index.isDropDuplicates())
+            options.append("dropDups", true);
+        collection.ensureIndex(keys, options);
+    }
+
+    public void dropIndex(Index index) {
+        connection.getMongoClient().getDB(database).getCollection(name).dropIndex(index.getName());
     }
 
     /**

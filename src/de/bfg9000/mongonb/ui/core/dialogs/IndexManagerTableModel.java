@@ -31,6 +31,7 @@ class IndexManagerTableModel extends DefaultTableModel {
     private final int FIRST_ATTRIBUTE_COLUMN = 1;   // the first attribute column. other attributes follow.
     private final int SPARSE_COLUMN;                // after the attribute columns
     private final int UNIQUE_COLUMN;                // after the sparse column
+    private final int DROP_DUPLICATES_COLUMN;       // after the unique column
     private final IndexManagerModel model;
     private final List<AttributeColumn> attributeColumns = new ArrayList<AttributeColumn>();
 
@@ -40,6 +41,7 @@ class IndexManagerTableModel extends DefaultTableModel {
         Collections.sort(attributeColumns);
         SPARSE_COLUMN = attributeColumns.size() +1;
         UNIQUE_COLUMN = SPARSE_COLUMN +1;
+        DROP_DUPLICATES_COLUMN = UNIQUE_COLUMN +1;
         this.model = model;
         this.model.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
@@ -55,7 +57,7 @@ class IndexManagerTableModel extends DefaultTableModel {
      */
     @Override
     public int getColumnCount() {
-        return UNIQUE_COLUMN +1;
+        return DROP_DUPLICATES_COLUMN +1;
     }
 
     /**
@@ -70,6 +72,8 @@ class IndexManagerTableModel extends DefaultTableModel {
             return bundle.getString("IndexManagerTableModel.column.sparse.name");
         if(UNIQUE_COLUMN == column)
             return bundle.getString("IndexManagerTableModel.column.unqiue.name");
+        if(DROP_DUPLICATES_COLUMN == column)
+            return bundle.getString("IndexManagerTableModel.column.dropDuplicates.name");
         return attributeColumns.get(column -FIRST_ATTRIBUTE_COLUMN).getName();
     }
 
@@ -80,6 +84,8 @@ class IndexManagerTableModel extends DefaultTableModel {
         if(SPARSE_COLUMN == columnIndex)
             return Boolean.class;
         if(UNIQUE_COLUMN == columnIndex)
+            return Boolean.class;
+        if(DROP_DUPLICATES_COLUMN == columnIndex)
             return Boolean.class;
         return KeySelection.class;
     }
@@ -121,6 +127,8 @@ class IndexManagerTableModel extends DefaultTableModel {
             return index.isSparse();
         if(UNIQUE_COLUMN == column)
             return index.isUnique();
+        if(DROP_DUPLICATES_COLUMN == column)
+            return index.isDropDuplicates();
         final String attributeName = attributeColumns.get(column -1).getName();
         for(Key key: index.getKeys())
             if(key.getColumn().equals(attributeName))
@@ -148,6 +156,10 @@ class IndexManagerTableModel extends DefaultTableModel {
         }
         if(UNIQUE_COLUMN == column) {
             index.setUnqiue(Boolean.TRUE.equals(aValue));
+            return;
+        }
+        if(DROP_DUPLICATES_COLUMN == column) {
+            index.setDropDuplicates(Boolean.TRUE.equals(aValue));
             return;
         }
 

@@ -6,11 +6,14 @@ import com.jidesoft.grid.TableColumnGroup;
 import de.bfg9000.mongonb.core.Collection;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.text.MessageFormat;
 import java.util.ResourceBundle;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
 import org.openide.windows.WindowManager;
 
@@ -25,7 +28,6 @@ public class IndexManagerDialog extends javax.swing.JDialog {
 
     private final IndexManagerModel model;
     private final TableModel tableModel;
-    private boolean dialogResult;
 
     /**
      * Creates new form IndexManagerDialog
@@ -39,15 +41,59 @@ public class IndexManagerDialog extends javax.swing.JDialog {
     }
 
     public void execute() {
-        dialogResult = false;
-
         final Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
         final Dimension dialog = new Dimension(470, 290);
         setBounds((screen.width -dialog.width) /2, (screen.height -dialog.height) /2, dialog.width, dialog.height);
         setVisible(true);
-        if(dialogResult) {
-            // updates / create / remove indexes
+    }
+
+    private void close(boolean cancelled) {
+        if(cancelled) {
+            setVisible(false);
+            return;
         }
+
+        final IndexManager indexManager = new IndexManager(model);
+
+        final String duplicatesMessage = indexManager.hasDuplicates();
+        if(null != duplicatesMessage) {
+            final String text = duplicatesMessage +"\n" +bundle.getString("IndexManagerDialog.duplicates.message");
+            final NotifyDescriptor question = new NotifyDescriptor.Confirmation(text, NotifyDescriptor.YES_NO_OPTION,
+                                              NotifyDescriptor.QUESTION_MESSAGE);
+            final Object answer = DialogDisplayer.getDefault().notify(question);
+            if(NotifyDescriptor.NO_OPTION == answer)
+                return;
+
+            final int duplicateCount = indexManager.removeDuplicates();
+            String message = 1 == duplicateCount ? bundle.getString("IndexManagerDialog.duplicates.removed-single") :
+                             MessageFormat.format(bundle.getString("IndexManagerDialog.duplicates.removed-multi"),
+                             duplicateCount);
+            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(message,
+                                                NotifyDescriptor.INFORMATION_MESSAGE));
+        }
+
+        final String emptyMessage = indexManager.hasEmptyIndexes();
+        if(null != emptyMessage) {
+            final String text = emptyMessage +"\n" +bundle.getString("IndexManagerDialog.empty.message");
+            final NotifyDescriptor question = new NotifyDescriptor.Confirmation(text, NotifyDescriptor.YES_NO_OPTION,
+                                              NotifyDescriptor.QUESTION_MESSAGE);
+            final Object answer = DialogDisplayer.getDefault().notify(question);
+            if(NotifyDescriptor.NO_OPTION == answer)
+                return;
+
+            final int emptyCount = indexManager.removeEmptyIndexes();
+            String message = bundle.getString("IndexManagerDialog.empty.removed-single");
+            DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(message,
+                                                NotifyDescriptor.INFORMATION_MESSAGE));
+        }
+
+        setVisible(false);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                indexManager.modifyCollection();
+            }
+        }).start();
     }
 
     /**
@@ -133,13 +179,11 @@ public class IndexManagerDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnOKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOKActionPerformed
-        dialogResult = true;
-        setVisible(false);
+        close(false);
     }//GEN-LAST:event_btnOKActionPerformed
 
     private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
-        dialogResult = false;
-        setVisible(false);
+        close(true);
     }//GEN-LAST:event_btnCancelActionPerformed
 
     private void btnAddIndexActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddIndexActionPerformed
@@ -157,10 +201,10 @@ public class IndexManagerDialog extends javax.swing.JDialog {
     private void setUpTableHeaders() {
         final TableColumnModel cm = tblIndexes.getColumnModel();
         final TableColumnGroup attributes = new TableColumnGroup(bundle.getString("IndexManagerDialog.columnHeader.attributes"));
-        for(int col=1; col<cm.getColumnCount() -2; col++)
+        for(int col=1; col<cm.getColumnCount() -3; col++)
             attributes.add(cm.getColumn(col));
         final TableColumnGroup options = new TableColumnGroup(bundle.getString("IndexManagerDialog.columnHeader.options"));
-        for(int col=cm.getColumnCount() -2; col<cm.getColumnCount() ; col++)
+        for(int col=cm.getColumnCount() -3; col<cm.getColumnCount() ; col++)
             options.add(cm.getColumn(col));
         ((JideTable) tblIndexes).setNestedTableHeader(true);
         final NestedTableHeader header = (NestedTableHeader) tblIndexes.getTableHeader();

@@ -27,6 +27,7 @@ public class Index {
     public static final String PROPERTY_NAMESPACE = "nameSpace";
     public static final String PROPERTY_SPARSE = "sparse";
     public static final String PROPERTY_UNIQUE = "unique";
+    public static final String PROPERTY_DROPDUPLICATES = "dropDuplicates";
 
     @AllArgsConstructor @EqualsAndHashCode @ToString
     public class Key {
@@ -59,6 +60,7 @@ public class Index {
     private final List<Key> keys = new ArrayList<Key>();
     @Getter private boolean sparse = true;
     @Getter private boolean unique = false;
+    @Getter private boolean dropDuplicates = false;
 
     private final PropertyChangeSupport propSupport = new PropertyChangeSupport(this);
     private final PropertyChangeListener keyChangeListener = new PropertyChangeListener() {
@@ -75,6 +77,8 @@ public class Index {
         for(String keyObjProperty: keyObj.keySet())
             keys.add(new Key(keyObjProperty, Integer.valueOf(1).equals(keyObj.get(keyObjProperty))));
         sparse = Boolean.TRUE.equals(indexInfo.get("sparse"));
+        unique = Boolean.TRUE.equals(indexInfo.get("unique"));
+        dropDuplicates = Boolean.TRUE.equals(indexInfo.get("dropDups"));
     }
 
     /**
@@ -142,6 +146,12 @@ public class Index {
         final boolean old = this.unique;
         this.unique = unique;
         propSupport.firePropertyChange(PROPERTY_UNIQUE, old, unique);
+    }
+
+    public void setDropDuplicates(boolean dropDuplicates) {
+        final boolean old = this.dropDuplicates;
+        this.dropDuplicates = dropDuplicates;
+        propSupport.firePropertyChange(PROPERTY_DROPDUPLICATES, old, dropDuplicates);
     }
 
 }

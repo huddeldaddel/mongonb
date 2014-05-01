@@ -2,6 +2,7 @@ package de.bfg9000.mongonb.ui.core.windows;
 
 import com.mongodb.DBObject;
 import de.bfg9000.mongonb.core.Collection;
+import de.bfg9000.mongonb.core.MongoExceptionUnwrapper;
 import de.bfg9000.mongonb.core.QueryResult;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
@@ -44,7 +45,7 @@ class RemoveWorker extends SwingWorker<List<DBObject>, Void> {
         try {
             return collection.remove(query);
         } catch(Exception ex) {
-            errorMessage = ex.getMessage();
+            errorMessage = new MongoExceptionUnwrapper(ex).toString();
             return null;
         } finally {
             final long end =  System.currentTimeMillis();

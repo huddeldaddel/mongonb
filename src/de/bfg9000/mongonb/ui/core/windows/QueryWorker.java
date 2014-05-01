@@ -1,6 +1,7 @@
 package de.bfg9000.mongonb.ui.core.windows;
 
 import de.bfg9000.mongonb.core.Collection;
+import de.bfg9000.mongonb.core.MongoExceptionUnwrapper;
 import de.bfg9000.mongonb.core.QueryExecutor;
 import de.bfg9000.mongonb.core.QueryResult;
 import java.text.MessageFormat;
@@ -44,7 +45,7 @@ class QueryWorker extends SwingWorker<QueryResult, Void> implements QueryExecuto
         try {
             return collection.query(query, this);
         } catch(Exception ex) {
-            errorMessage = ex.getMessage();
+            errorMessage = new MongoExceptionUnwrapper(ex).toString();
             return null;
         } finally {
             final long end =  System.currentTimeMillis();
